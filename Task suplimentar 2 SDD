@@ -1,0 +1,163 @@
+//Margarit Andrada grupa 1058 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct Masina
+{
+    int kilometraj;
+    char* denumire;
+    int pret;
+
+};
+//Realizati o functie cu ajutorul careia sa cititi de la tastatura un articol de tipul construit de voi. Funcția returnează obiectul citit.
+struct Masina citire()
+{
+    struct Masina masina1;
+    printf_s("kilometraj masina: ");
+    scanf_s("%d", &masina1.kilometraj);
+
+    masina1.denumire = (char*)malloc(100 * sizeof(char));
+    if (masina1.denumire == NULL) {
+        printf_s("Eroare");
+        exit(1);
+    }
+    printf_s("denumire masina: ");
+    scanf_s("%s", masina1.denumire);
+
+    printf_s("Introduceți prețul mașinii: ");
+    scanf_s("%d", &masina1.pret);
+
+    return masina1;
+}
+//Realizati o functie care calculeaza ceva pentru un obiect de tipul implementat de voi. (o medie sau o suma, un maxim, un minim...sau orice altceva)
+void tipmasina(struct Masina masina)
+{
+    if (masina.kilometraj <= 1000) {
+        printf_s("masina este noua \n");
+    }
+    else {
+        printf_s("masina nu este noua \n");
+    }
+}
+//Realizati o functie care modifica pentru un obiect primit ca parametru, un anumit camp. noua valoare este primita ca parametru
+void modificare(struct Masina* masina, int pretnou)
+{
+    masina->pret = pretnou;
+}
+//Realizați o funcție care afișează un obiect de tipul creat. Afișarea se face la console, și sunt afișate toate informațiile.
+void afisare(struct Masina masina) {
+    printf_s("Kilometraj: %d\n", masina.kilometraj);
+    printf_s("Denumire: %s\n", masina.denumire);
+    printf_s("Pret: %d\n", masina.pret);
+}
+struct Masina initializare(int kilometraj, char* denumire, int pret)// de reluat!! ca la constructorul cu prametri
+{
+    struct Masina m;// de ce a fost nevoie sa declare aici si cum se tranfera asta ca informtii in main?
+    m.kilometraj = kilometraj;
+    if (denumire != NULL)
+    {
+        m.denumire = malloc(strlen(denumire) + 1);
+        strcpy(m.denumire, denumire);
+    }
+    else
+    {
+        m.denumire = malloc(strlen("N/A") + 1);
+        strcpy(m.denumire, "N/A");
+    }
+    return m;
+}
+//Realizati o functie care va creea un nou vector în care va copia dintr-un vector primit ca
+//parametru obiectele care indeplinesc o anumita conditie. Stabiliti voi conditia in functie de un atribut sau doua atribute.
+struct Masina* masiniScumpe(struct Masina* masini, int lungime, int* lungimeNoua) {
+    struct Masina* masiniScumpe = NULL;
+    int numarMasiniScumpe = 0;
+
+    for (int i = 0; i < lungime; ++i) {
+        if (masini[i].pret > 50000) {
+           
+            masiniScumpe = (struct Masina*)realloc(masiniScumpe, (numarMasiniScumpe + 1) * sizeof(struct Masina));
+            masiniScumpe[numarMasiniScumpe] = masini[i];
+            numarMasiniScumpe++;
+        }
+    }
+
+    // Actualizăm lungimea noului vector și o returnăm
+    *lungimeNoua = numarMasiniScumpe;
+    return masiniScumpe;
+}
+//Realizati o functie care muta intr-un nou vector obiectele care indeplinesc o alta conditie fata de cerinta precedenta.
+struct Masina* masiniNoi(struct Masina* masini, int lungime, int* lungimeNoua) {
+    struct Masina* masiniNoi = NULL;
+    int numarMasiniNoi = 0;
+
+    for (int i = 0; i < lungime; ++i) {
+        if (masini[i].kilometraj < 20000) {
+            masiniNoi = (struct Masina*)realloc(masiniNoi, (numarMasiniNoi + 1) * sizeof(struct Masina));
+            masiniNoi[numarMasiniNoi] = masini[i];
+            numarMasiniNoi++;
+        }
+    }
+
+    // Actualizăm lungimea noului vector și o returnăm
+    *lungimeNoua = numarMasiniNoi;
+    return masiniNoi;
+}
+//Realizati o functie care afiseaza un vector cu obiecte.
+void afisareVect(struct Masina* vector, int lungime) {
+    for (int i = 0; i < lungime; ++i) {
+        printf("Masina %d: Denumire: %s, Kilometraj: %d km, Pret: %d\n", i + 1, vector[i].denumire, vector[i].kilometraj, vector[i].pret);
+    }
+}
+int main()
+{
+    //struct Masina masina= citire();
+    struct Masina masina1 = { 10000, "Dacia", 15000 };
+    tipmasina(masina1);
+    modificare(&masina1, 1000);
+    afisare(masina1);
+    //Creati in functia main un vector alocat dinamic cu cel putin 5 obiecte de tipul structurii voastre.
+    struct Masina *VectorMasini;// v
+    VectorMasini = (struct Masina*)malloc(5 * sizeof(struct Masina));// de reluat explicatia 
+    if (VectorMasini == NULL)
+    {
+        printf_s("Nu s-a alocat dinamic");
+    }
+    VectorMasini[0] = initializare(100000, "Tesla", 100000);
+    VectorMasini[1] = initializare(80000, "BMW", 85000);
+    VectorMasini[2] = initializare(60000, "Audi", 75000);
+    VectorMasini[3] = initializare(50000, "Mercedes", 90000);
+    VectorMasini[4] = initializare(20000, "Toyota", 30000);
+
+    int lungimeVectNou = 0;
+    
+    struct Masina* VectorMasini = masiniScumpe(VectorMasini, 5, &lungimeVectNou);
+    // Afișarea mașinilor scumpe
+    /*printf("Masinile cu pretul mai mare de 50000:\n");
+    for (int i = 0; i < lungimeVectNou; ++i) {
+        printf("Denumire: %s, Kilometraj: %d km, Pret: %d\n", masiniScumpe[i].denumire, masiniScumpe[i].kilometraj, masiniScumpe[i].pret);
+    }*/
+
+    // Eliberarea memoriei alocate dinamic
+    for (int i = 0; i < 5; ++i) {
+        free(VectorMasini[i].denumire);
+    }
+    free(VectorMasini);
+    free(masiniScumpe);
+
+    int lungimeVectNou1 = 0;
+    struct Masina* masiniNoiArray = masiniNoi(VectorMasini, 5, &lungimeVectNou1);
+
+    // Afișăm mașinile noi
+    printf("Masinile noi (cu kilometraj mai mic de 20000):\n");
+    for (int i = 0; i < lungimeVectNou; ++i) {
+        printf_s("Denumire: %s, Kilometraj: %d km, Pret: %d\n", masiniNoiArray[i].denumire, masiniNoiArray[i].kilometraj, masiniNoiArray[i].pret);
+    }
+    for (int i = 0; i < lungimeVectNou; ++i) {
+        free(masiniNoiArray[i].denumire);
+    }
+    free(VectorMasini);
+    free(masiniNoiArray);
+    printf_s("Vectorul VectorMasini:\n");
+    afiseazaVector(VectorMasini, 5);
+    return 0;
+}
