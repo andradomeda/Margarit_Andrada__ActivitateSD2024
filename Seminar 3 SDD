@@ -1,0 +1,119 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<malloc.h>
+
+
+struct Aeroport
+{
+	int id;
+	char* nume;
+	int nrTerminale;
+};
+
+struct Aeroport* adaugaAeroport(struct Aeroport* vector, struct Aeroport aeroport, int* dimensiune) 
+	//nu pointer la al doilea param struct pt ca dupa trebuia deferentiat;dimensiune trebuie cu * pt ca dimensiunea se schimab
+{
+	struct Aeroport* copie = (struct Aeroport*)malloc(sizeof(struct Aeroport) * ((*dimensiune) + 1));
+
+	copie[(*dimensiune)] = aeroport;
+
+	for (int i = 0; i < (*dimensiune); i++)
+	{
+		copie[i] = vector[i];
+	}
+	//noi am facut shallow copy deci tre s avem grij cum stergem vectorul ala;stergem vectroul dor daca e diferit de null
+	if (vector)
+		free(vector);
+
+	(*dimensiune)++;
+
+	return copie;
+}
+
+
+struct Aeroport* citireFisier(const char* numeFisier, int* nrAeroporturi)//punem const pt ca nu mai modificm dar nr de erorporturi o sa se modifice
+{
+	struct Aeroport* vectorAeroporturi;
+	vectorAeroporturi = NULL;
+	FILE* f = fopen(numeFisier, "r");// FILE are pointer deci nu pun & nume pt ca dej primesc o adresa 
+	
+	if (f != NULL)//fget citeste o linie totala si dupa cu strtoc vedem ce e separt prin virgula sau prin fread - prin gfet sau fscanf 
+	{
+		//ca sa nu ai eroare, trebuie orice ar fi sa initializezi cu 0
+		(*nrAeroporturi) = 0;
+		char buffer[100];//daca il locam static il alocm de 100 daca il alocam dinamic il f
+		//acem strlen de cineva si nu stim de cine il alocam. daca il loc dinamic la sf trebuie s il
+		//dezaloc la final deci e un dezavantaj. Altfel ar fi fost la fel ca la static. De aia alegem static
+		//returneaza adres referinta catre ce a citit. daca junge la finalul fisier f gets cnd ne face citirea returneaza null. 
+		while(fgets(buffer,99, f)!=NULL)
+		{
+			//facem un vector de tip eroport ca sa avem date numa de tipul eroport
+			struct Aeroport aeroport;
+			char delimitator[] = ",\n";//asa ii permitem sa il initializm direct pe stiva
+			char* token = strtok(buffer, delimitator);//token e ascii si trebuie sa il facem int cum e id ul 
+			aeroport.id = atoi(token);//ascii to integer
+			token = strtok(NULL, delimitator);//de la null pt ca asa a marcat strtok locul unde a ramas ultima oara 
+			aeroport.nume = malloc(sizeof(char) * (strlen(token) + 1));
+			strcpy(aeroport.nume, token);
+			token = strtok(NULL, delimitator);
+			aeroport.nrTerminale = atoi(token);
+			//facem o functie care sa adauge intr un vector elementele astea 
+			vectorAeroporturi = adaugaAeroport(vectorAeroporturi, aeroport, nrAeroporturi);
+		}
+
+		//fgets()primeste primeste ca parm si returneze un char pointer un string de caractere
+		fclose(f);
+	}
+	return vectorAeroporturi;
+}
+
+void afisareAeroport(struct Aeroport* aeroport) {
+	printf("Aeroportul cu id: %d cu numele %s are %d terminale.\n", aeroport->id, aeroport->nume, aeroport->nrTerminale);
+
+}
+
+void afisareVectorAeroporturi(struct Aeroport* aeroporturi, int dim) {
+	printf("AFISARE VECTOR:\n");
+	for (int i = 0; i < dim; i++)
+	{
+		afisareAeroport(&aeroporturi[i]);
+	}
+}
+
+//functie care returneaza un aeroport dupa un id dat 
+
+struct Aeroport idCautat(struct Aeroport* aeroporturi, int dim, int idCautat) {
+	for (int i = 0; i < dim; i++)
+	{
+		if (aeroporturi[i].id == idCautat)
+			return aeroporturi[i];
+	}
+
+	struct Aeroport aeroport;
+	aeroport.id = -1;
+	aeroport.nrTerminale = -1;
+	aeroport.nume = malloc(sizeof(char) * (1 + strlen("N/A")));
+	strcpy(aeroport.nume, "N/A");
+	return aeroport;
+}
+void dezalocareVector(struct Aeroport** aeroporturi, int* dim) {
+	for (int i = 0; i < (*dim); i++)
+	{
+		free((*aeroporturi)[i].nume);
+	}
+	free(*aeroporturi);
+	(*aeroporturi) = NULL;
+	(*dim) = 0;
+}
+
+
+void main()
+{
+	int dimensiune=3;
+	struct Aeroport* aeroporturi = NULL;//initial nu avem niciun aeroport
+	aeroporturi=citireFisier("aeroporturi.txt",&dimensiune);//te uiti ce iti spune intellisense ul ca sa iti dai seama ca trebuie referinta 
+	afisareVectorAeroporturi(aeroporturi, dimensiune);
+	dezalocareVector(&aeroporturi, &dimensiune);
+}
