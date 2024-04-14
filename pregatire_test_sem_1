@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+//Margarit Andrada => Amanet
+struct Amanet
+{
+	int cod;
+	char* nume;
+	int nrProduse;
+	float* preturi;
+};
+struct Amanet citire() // de ce nu ar fi mers sa denumesc asta citireA.manet
+{
+	struct Amanet amanet1;
+
+	printf_s("Introduceti codul amanetului: ");
+	scanf_s("%d", &amanet1.cod);
+
+	printf("Numele amanetului este: ");
+	amanet1.nume = (char*)malloc(100 * sizeof(char));
+	//char* arata ca nume va contine elemente de tipul char* 
+	//faci cast pentru a modifica in mod explicit tipul unei variabile; 
+	//malloc returneaza un pointer de tip void* iar noi folosim char pt a returna un tip char
+	//un octet are 8 biti; un bit este 1/0; octet= byte
+	//am ales 100 pt a aloca 100 de octeti; un char ocupa 1 octet
+	//cum pana mea fac o citire de la tastatura
+	scanf_s("%s", amanet1.nume);
+
+	printf("nr produse ale amanetului este: ");
+	scanf_s("%d", &amanet1.nrProduse);
+
+	//alocam memorie pt vectorul de preturi.Trebuie sa fie dinamic pt ca memori variaza in functie de cte produse avem
+	amanet1.preturi = (float*)malloc(amanet1.nrProduse * (sizeof(float)));
+	for (int i = 0; i < amanet1.nrProduse; i++)
+	{
+		printf_s("pretul produsului %d este ", i+1);
+		scanf_s("%f", &amanet1.preturi[i]);
+	}
+	// vezi tot timpul sa incepi de la 0 i ul 
+	return amanet1;
+}
+void afisare(struct Amanet amanet)
+{
+	printf_s("Amanetul cu codul %d se numeste %s are %d produse si produsele costa", amanet.cod, amanet.nume, amanet.nrProduse);
+	for (int i = 0; i < amanet.nrProduse; i++)
+	{
+		printf_s(" %.2f\t", amanet.preturi[i]);
+	}
+	printf_s("\n");
+}
+int medie_preturi(struct Amanet amanet2)
+{
+	float medie = 0;
+	printf_s("Voi calcula media produselor amanetului");
+	for (int i = 0; i < amanet2.nrProduse; i++)
+	{
+		medie = medie + amanet2.preturi[i];
+
+	}
+	medie = medie / amanet2.nrProduse;
+	
+	return medie;
+}
+void main()
+{
+	/*struct Amanet amanet;
+	amanet = citire();
+	printf("Vedem ce se intampla \n ");
+	printf_s("Codul amanetului este %d si are numele %s si are %d produse cu preturile ", amanet.cod, amanet.nume, amanet.nrProduse);
+	printf_s("Preturile: ");
+	for (int i = 0; i < amanet.nrProduse; i++) {
+		printf_s("%.2f ", amanet.preturi[i]);
+	}*/
+	struct Amanet obiectAmanet;
+	obiectAmanet.cod = 1001;
+	obiectAmanet.nume = "Amanetul Gold";
+	obiectAmanet.nrProduse = 3;
+
+	// Alocare dinamică a memoriei pentru vectorul de preturi și inițializare cu valori prestabilite
+	obiectAmanet.preturi = (float*)malloc(obiectAmanet.nrProduse * sizeof(float));
+	obiectAmanet.preturi[0] = 150.50;
+	obiectAmanet.preturi[1] = 200.55;
+	obiectAmanet.preturi[2] = 250.60;
+	afisare(obiectAmanet);
+	float media_calculata;
+	media_calculata = medie_preturi(obiectAmanet);
+	printf_s(" %.2f", media_calculata);
+	
+
+
+}
