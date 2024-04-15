@@ -1,0 +1,97 @@
+#include<stdio.h>
+#include<stdlib.h>
+#define _CRT_SECURE_NO_WARNINGS
+struct Restaurant
+{
+	int cod;
+	char* denumire;
+	float taxe;
+};
+struct Restaurant* adaugaobiect(struct Restaurant* vectorResturante, struct Restaurant obiect, int* dimensiune )
+{
+	struct Restaurant* copie = (struct Restaurant*)malloc(sizeof(struct Restaurant) * ((*dimensiune) + 1));
+	copie[(*dimensiune)] = obiect;
+	for (int i = 0; i < (*dimensiune); i++)
+	{
+		copie[i] = vectorResturante[i];
+	}
+	//pt ca e shallow copy tre sa avem grija sa stergem memoria din vector
+	if (vectorResturante != NULL)
+		free(vectorResturante);
+	(*dimensiune)++;
+	return copie;
+
+}
+//trebuie sa adaugam din fisierul sursa cele 10 obiecte restaurant
+//pt asta initial cream un vector gol caruia ii adugam obiecte unul cate unul
+//deci, ne trebuie si o functie care se numeste adaugaobiect
+//returnsezi un vector de obiecte resturant si apelezi numele fisierului text si 
+//nr de obiecte care se modifica de la 0 initial
+struct Restaurant* citireFisier(const char* numeFisier, int* nrRestaurnte)
+{
+	//declaram pointer la o structura vector de restaurante;
+	struct Restaurant* vectorRestaurante;
+	vectorRestaurante = NULL;
+
+	FILE* f = fopen(numeFisier, "r");
+	//FILE este un tip de date in c care ajuta manipularea fisierelor
+	//F este un pointer de tip F
+	// fopen - functia cu care se deschide fisierul 
+	//r inseamna c se deschide fisierul in modul read
+	if (f != NULL)
+	{
+		//cum putem citi fisierul:
+		//cu fget care citeste o linie intreaga si dupa strtok vedem ce e separat prin virgula
+		//sau fread: fget sau fscanf
+		//alegem prima varianta
+
+		//ca sa nu iti genereze pointer prost tot timpul initilizeaza cu 0; urmez sa ii modifici valoarea 
+		(*nrRestaurnte) = 0;
+		//ai nevoie de o zona de mem temporara in care sa stochezi dtele tale din fisier pana cand sunt procesate 
+		char buffer[100];
+		//functia fgets: citeste o linie intreaga dintr-un fisier 
+		//returneaz adresa primului rand si duga un \0 dup fiecrae rnd citit
+		while (fgets(buffer, 99, f) != NULL)
+		{
+			//prelucrezi obiectul adica incerci sa il preiei din fisier deci trebuie sa il declari
+			struct Restaurant obiect;
+			char delimitator[] = ",\n";
+			//strtok descompune un șir de caractere în bucăți mai mici, numite "token-uri", 
+			//pe baza unui set de delimitatori specificați.
+			char* token = strtok(buffer, delimitator);
+			//token e ascii si tre sa avem grija sa il convertim 
+			//pana aici eu am in token salvat in cod ascii primul lucru scris ininte de ptima virgula
+			obiect.cod = atoi(token);
+			token = strtok(NULL, delimitator);
+			//pana aici token are salvat ce se afla inainte de a doua virgula
+			//stim ca al doilea element este e tip char* deci trebuie sa i dam un sptiu de memorie mai inati
+			obiect.denumire = (char*)malloc(sizeof(char) * (strlen(token) + 1));
+			strcpy(obiect.denumire, token);
+			token = strtok(NULL, delimitator);
+			//pana aici token are ce se afla inainte de \n deci un float taxe
+			obiect.taxe = atof(token);
+			vectorRestaurante = adaugaobiect(vectorRestaurante, obiect, nrRestaurnte);
+		}
+		fclose(f);
+	}
+	return vectorRestaurante;
+}
+void afisareRestaurant(struct Restaurant* restaurant) {
+	printf("Restaurantul cu codul %d și denumirea %s are taxele de %.2f.\n", restaurant->cod, restaurant->denumire, restaurant->taxe);
+}
+
+void afisareVectorRestaurante(struct Restaurant* restaurante, int dim) {
+	printf("AFISARE VECTOR:\n");
+	for (int i = 0; i < dim; i++)
+	{
+		afisareRestaurant(&restaurante[i]);
+	}
+}
+void main()
+{
+	int dim = 10;
+	struct Restaurant* vectorRestaurante = NULL;
+	 vectorRestaurante = citireFisier("Sursa.txt", &dim);
+	 afisareVectorRestaurante(vectorRestaurante, dim);
+
+}
