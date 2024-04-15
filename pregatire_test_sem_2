@@ -1,0 +1,133 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct Florarie {
+	int cod;
+	char* nume;
+	int nrTipuri;
+	//float* pret;//cat costa o floare de un tip
+};
+struct Florarie initializare(int cod, const char* nume, int nrTipuri/*, const float* pret*/)
+{
+	struct Florarie floraria;
+	floraria.cod = cod;
+	floraria.nume = (char*)malloc((sizeof(char)) * (strlen(nume) + 1));
+	strcpy_s(floraria.nume,strlen(nume)+1, nume);
+	floraria.nrTipuri = nrTipuri;
+	/*floraria.pret = (float*)malloc((sizeof(float)) * nrTipuri);
+    for (int i = 0; i < floraria.nrTipuri; i++)
+     {
+       floraria.pret[i] = pret[i];
+     }*/
+    return floraria;
+}
+void afisare(struct Florarie floraria)
+{
+    printf("Numele florariei %s are codul %d are %d tipuri de flori ", floraria.nume, floraria.cod, floraria.nrTipuri);
+    /*for (int i = 0; i < floraria.nrTipuri; i++)
+    {
+        printf(" %.2f", floraria.pret[i]);
+    }*/
+    printf("\n");
+}
+//functie care copiaza primele 3 florarii
+//returneaza un pointer!!!!!!!!!!
+struct Florarie* copiaza(struct Florarie* vectorFlorarii)
+{
+    struct Florarie* vectorNou;
+    vectorNou = (struct Florarie*)malloc(4 * sizeof(struct Florarie));
+    int k = 0;
+    for (int i = 0; i < 3; i++)
+    {
+        vectorNou[k] = vectorFlorarii[i];
+        k++;
+    }
+    return vectorNou;
+}
+//functie care copiaza florariile ce respecta un anumit criteriu
+//creezi un nou vector deci iti trebuie un singur pointer 
+struct Florarie* codImpar(struct Florarie* vectorFlorarii, int nrFlorarii, int* nrflorariibune)
+{
+    *nrflorariibune = 0;
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        if (vectorFlorarii[i].nrTipuri != 0)
+        {
+            (*nrflorariibune)++;
+        }
+    }
+
+    struct Florarie* florarieCodImpar = (struct Florarie*)malloc(sizeof(struct Florarie)*(*nrflorariibune));
+    int k = 0;
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        if (vectorFlorarii[i].nrTipuri%2 != 0)
+        {
+            florarieCodImpar[k] = initializare(vectorFlorarii[i].cod, vectorFlorarii[i].nume, vectorFlorarii[i].nrTipuri/*,vectorFlorarii[i].pret*/);
+            k++;
+        }
+    }
+    
+    return florarieCodImpar;
+}
+//functie care returneza floraria care are un cod dat
+//returneaza un pointer la pointer 
+struct Florarie** florariacod(struct Florarie* vectorFlorarii, int nrFlorarii, int codCautat)
+{
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        if (vectorFlorarii[i].cod == codCautat)
+            return vectorFlorarii[i];
+    }
+    return 0; 
+}
+void dezalocare(struct Florarie floraria)
+{
+    /*free(floraria.pret);*/
+    free(floraria.nume);
+}
+int main() {
+    
+    /*float preturi[] = { 25.5, 30.75, 20.0, 15.25 };*/
+    struct Florarie floraria = initializare(1001, "Floraria mea", 4/*, preturi*/);
+    afisare(floraria);
+   
+    int nrFlorarii;
+    printf_s("Introduceti nr de florarii:");
+    scanf_s("%d", &nrFlorarii);
+    printf("\nDeci, construiesc vector cu %d florarii", nrFlorarii);
+    printf("\n-------------------------------\n");
+    struct Florarie* vectorFlorarii = (struct Florarie*)malloc(sizeof(struct Florarie) * nrFlorarii);
+
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        vectorFlorarii[i] = initializare(1001 + i, "Floraria ", 4+i/*, preturi*/);
+    }
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        afisare(vectorFlorarii[i]);
+    }
+   
+    
+    /*printf("\nVectorul copiat cu primii 3 termeni\n");
+    struct Florarie* vectorNou = copiaza(vectorFlorarii);
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        afisare(vectorNou[i]);
+    }*/
+
+    printf("\n doamne ajuta \n");
+    int nrflorariibune = 0;
+    struct Florarie* florcodImpar = codImpar(vectorFlorarii, nrFlorarii, &nrflorariibune);
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        afisare(florcodImpar[i]);
+    }
+
+    for (int i = 0; i < nrFlorarii; i++)
+    {
+        dezalocare(vectorFlorarii[i]);
+    }
+
+    return 0;
+}
