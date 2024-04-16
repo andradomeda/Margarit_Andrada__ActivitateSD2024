@@ -131,3 +131,115 @@ int main() {
 
     return 0;
 }
+/*----------erore la deep copy-----------------
+//Creati in functia main un vector alocat dinamic cu cel putin 5 obiecte de tipul structurii voastre.
+
+//Stabiliti voi conditia in functie de un atribut sau doua atribute.
+//Realizati o functie care muta intr - un nou vector obiectele care indeplinesc o alta conditie fata de cerinta precedenta.
+
+//Apelati toate aceste functii in main().
+#include<stdio.h>
+#include<stdlib.h>
+
+struct Restaurant
+{
+	int cod;
+	char* nume;
+	float taxe;
+};
+struct Restaurant initializare(int cod, const char* nume, float taxe)
+{
+	struct Restaurant restaurant;
+	restaurant.cod = cod;
+	restaurant.nume = (char*)malloc(sizeof(char) * (strlen(nume)+1));
+	strcpy(restaurant.nume, nume);
+	restaurant.taxe = taxe;
+	return restaurant;
+}
+//Realizati o functie care afiseaza un vector cu obiecte.
+void afisareobiect(struct Restaurant restaurant)
+{
+	printf("\nRestaurantul cu numele %s are codul % d si plateste %.2f taxe lunar\n", restaurant.nume, restaurant.cod, restaurant.taxe);
+}
+void afisarevector(struct Restaurant* r, int nrRestaurante)
+{
+	if (nrRestaurante > 0 && r != NULL)
+	{
+		for (int i = 0; i < nrRestaurante; i++)
+		{
+			afisareobiect(r[i]);
+		}
+	}
+}
+//Realizati o functie care va creea un nou vector în care va copia dintr - un vector primit ca parametru primele 3 obiecte
+struct Restaurant* copiere(struct Restaurant* vectRestaurante)
+{
+	struct Restaurant* vectCodImpar=(struct Restaurant*)malloc(sizeof(struct Restaurant)*3);
+	
+	for (int i = 0; i < 3; i++)
+	{
+		vectCodImpar[i].cod = vectRestaurante[i].cod;
+		vectCodImpar[i].nume=(char*)malloc(sizeof(char)*(strlen(vectRestaurante[i].nume)+1));
+		strcpy(vectCodImpar[i].nume, vectRestaurante[i].nume);
+		vectCodImpar[i].taxe = vectCodImpar[i].taxe;
+	}
+	return vectCodImpar;
+}
+//deep copy
+struct Restaurant* criteriu(struct Restaurant* restaurant,int nrRestaurante, int* dimensiune)
+{
+	*dimensiune = 0;
+	for (int i = 0; i < nrRestaurante; i++)
+	{
+		if (restaurant[i].cod % 2 == 0)
+		{
+			(*dimensiune)++;
+		}
+	}
+	struct Restaurant* vectNou = (struct Restaurant*)malloc(sizeof(struct Restaurant) * (*dimensiune));
+	int k = 0;
+	for (int i = 0; i < nrRestaurante; i++)
+	{
+		if (restaurant[i].cod % 2 == 0)
+		{
+			vectNou[k] = initializare(restaurant[i].cod, restaurant[i].nume, restaurant[i].taxe);
+			k++;
+		}
+	}
+	return vectNou;
+}
+void dezalocare(struct Restaurant** restaurant, int* dim)
+{
+	for (int i = 0; i < (*dim); i++)
+	{
+		free((*restaurant)[i].nume);
+	}
+	free(*restaurant);
+	*restaurant = NULL;
+	*dim = NULL;
+	
+}
+void main()
+{
+	int nrRestaurante = 4;
+	struct Restaurant* vectorRestaurante = (struct Restaurant*)malloc(sizeof(struct Restaurant) * nrRestaurante);
+	for (int i = 0; i < nrRestaurante; i++)
+	{
+		vectorRestaurante[i] = initializare(1000 + i, "Restaurant", 100 * (i+0.25));
+		
+	}
+	afisarevector(vectorRestaurante, nrRestaurante);
+	
+	printf("\n-----------shallow copy----------\n");
+	struct Restaurant* vectCodImpar= copiere(vectorRestaurante);
+	afisarevector(vectCodImpar, 3);
+
+	printf("\n-------------deep copy------------\n");
+	int dimensiune=0;
+	struct Restaurant* vectNou = copiere(vectorRestaurante, 4, &dimensiune);
+	afisarevector(vectNou, dimensiune);
+
+	dezalocare(&vectorRestaurante, &nrRestaurante);
+	
+}
+*/
