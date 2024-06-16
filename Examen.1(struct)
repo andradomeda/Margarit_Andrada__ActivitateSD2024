@@ -1,0 +1,67 @@
+/Articolul trebuie să aibă logica.Articolul trebuie sa fie un substantiv.Articolul trebuie sa aibă cel puțin trei atribute, si cel puțin unul să fie alocat dinamic.
+//
+//Realizati o functie cu ajutorul careia sa cititi de la tastatura un articol de tipul construit de voi.Funcția returnează obiectul citit.
+//
+//Realizati o functie care calculeaza ceva pentru un obiect de tipul implementat de voi. (o medie sau o suma, un maxim, un minim...sau orice altceva)
+//
+//Realizati o functie care modifica pentru un obiect primit ca parametru, un anumit camp.noua valoare este primita ca parametru.
+//
+//Realizați o funcție care afișează un obiect de tipul creat.Afișarea se face la console, și sunt afișate toate informațiile.
+
+#include <stdio.h>
+#include <malloc.h>
+//standard imput output library pt citiri de la tastatura etc
+//biblioteca de gestionare a memoriei dinamice
+struct Muzeu 
+{
+	//la struct in c nu poti sa ai functii
+	char* nume;//sir de caractere 
+	float pret;
+	int nr_vizitatori;
+
+};
+struct Muzeu initializare(const char* nume, float pret, int nr_vizitatori)
+{
+	struct Muzeu muzeu;
+	//pt locrea dinmica trebuie mi intai s aloc memorie dupa initilizez
+	if(nume!=NULL){
+	muzeu.nume = (char*)malloc(sizeof(char) * (strlen(nume) + 1));
+	//de obicei functia malloc returneaza void* dar prin (char*) noi transformam pointerul generic returnat in pointer la char
+	//in parntez iti trebuie mai intai tipul de date storat, pt a i putea face size ul si apoi cate elemente de tipul la exista
+	//+1 pt ca strlen returneaza marimea sitului de carctere fara termenul nul de la sfarsit 
+	//muzeu.nume este un char* deci va fi egal cu ceva de tip char* 
+	strcpy(muzeu.nume, nume);
+	}
+	else
+	{
+		muzeu.nume = (char*)malloc(strlen("N/A") + 1);
+		strcpy(muzeu.nume, "N/A");
+	}
+	muzeu.pret = pret;
+	muzeu.nr_vizitatori = nr_vizitatori;
+	return muzeu;
+}
+void afisare(const struct Muzeu muzeu)
+{
+	if(muzeu.nume!=NULL)
+	{
+	printf("Muzeul se numeste %s, si pretul de intrare este %.2f avand %d vizitatori", muzeu.nume, muzeu.pret, muzeu.nr_vizitatori);
+	}
+	else
+	{
+		printf("pretul de intrare este %.2f avand %d vizitatori", muzeu.pret, muzeu.nr_vizitatori);
+	}
+}
+void dezalocare(struct Muzeu muzeu)
+{
+	if (muzeu.nume != NULL) {
+		free(muzeu.nume);
+		muzeu.nume = NULL;
+	}
+}
+void main()
+{
+	struct Muzeu muzeu = initializare(NULL, 12.46327, 123);
+	afisare(muzeu);
+	dezalocare(muzeu);
+}
