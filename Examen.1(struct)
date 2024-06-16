@@ -1,13 +1,3 @@
-/Articolul trebuie să aibă logica.Articolul trebuie sa fie un substantiv.Articolul trebuie sa aibă cel puțin trei atribute, si cel puțin unul să fie alocat dinamic.
-//
-//Realizati o functie cu ajutorul careia sa cititi de la tastatura un articol de tipul construit de voi.Funcția returnează obiectul citit.
-//
-//Realizati o functie care calculeaza ceva pentru un obiect de tipul implementat de voi. (o medie sau o suma, un maxim, un minim...sau orice altceva)
-//
-//Realizati o functie care modifica pentru un obiect primit ca parametru, un anumit camp.noua valoare este primita ca parametru.
-//
-//Realizați o funcție care afișează un obiect de tipul creat.Afișarea se face la console, și sunt afișate toate informațiile.
-
 #include <stdio.h>
 #include <malloc.h>
 //standard imput output library pt citiri de la tastatura etc
@@ -41,6 +31,10 @@ struct Muzeu initializare(const char* nume, float pret, int nr_vizitatori)
 	muzeu.nr_vizitatori = nr_vizitatori;
 	return muzeu;
 }
+int calcul(struct Muzeu muzeu)
+{
+	return muzeu.nr_vizitatori / 2;
+}
 void afisare(const struct Muzeu muzeu)
 {
 	if(muzeu.nume!=NULL)
@@ -52,6 +46,12 @@ void afisare(const struct Muzeu muzeu)
 		printf("pretul de intrare este %.2f avand %d vizitatori", muzeu.pret, muzeu.nr_vizitatori);
 	}
 }
+////Realizati o functie care modifica pentru un obiect primit ca parametru, un anumit camp.noua valoare
+//este primita ca parametru.
+void modif(struct Muzeu* muzeu, int numar)
+{
+	muzeu->nr_vizitatori = numar;
+}
 void dezalocare(struct Muzeu muzeu)
 {
 	if (muzeu.nume != NULL) {
@@ -61,7 +61,11 @@ void dezalocare(struct Muzeu muzeu)
 }
 void main()
 {
-	struct Muzeu muzeu = initializare(NULL, 12.46327, 123);
+	struct Muzeu muzeu = initializare("Antipa", 12.46327, 123);
+	afisare(muzeu);
+	int calculul = calcul(muzeu);
+	printf("\n%d\n", calculul);
+	modif(&muzeu, 200);
 	afisare(muzeu);
 	dezalocare(muzeu);
 }
