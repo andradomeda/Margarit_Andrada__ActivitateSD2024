@@ -1,0 +1,116 @@
+//Creati in functia main un vector alocat dinamic cu cel putin 5 obiecte de tipul structurii voastre.
+//
+//Realizati o functie care va creea un nou vector în care va copia dintr - un vector primit ca parametru obiectele care 
+// indeplinesc o anumita conditie.Stabiliti voi conditia in functie de un atribut sau doua atribute.
+//
+//Realizati o functie care muta intr - un nou vector obiectele care indeplinesc o alta conditie fata de cerinta precedenta.
+//
+//Realizati o functie care concateneaza doi vectori.
+//
+//Realizati o functie care afiseaza un vector cu obiecte.
+//
+//Apelati toate aceste functii in main().
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+struct Planta
+{
+	char* denumire;
+	int varsta;
+	double greutate;
+};
+struct Planta initilizare(const char* denumire, int varsta, double greutate)
+{
+	struct Planta planta;
+	if (denumire != NULL)
+	{
+		planta.denumire = (char*)malloc(sizeof(char) * (strlen(denumire) + 1));
+		strcpy(planta.denumire, denumire);
+	}
+	else
+	{
+		planta.denumire = malloc(strlen("N/A") + 1);
+		strcpy(planta.denumire, "N/A");
+	}
+	planta.varsta = varsta;
+	planta.greutate = greutate;
+	return planta;
+}
+void afisare(const struct Planta planta)
+{
+	printf("denumire: %s", planta.denumire);
+	printf(" varsta: %d", planta.varsta);
+	printf(" greutate: %f", planta.greutate);
+	printf("\n");
+}
+void afisare_vector(const struct Planta* plante, int nr_plante)
+{
+	for (int i = 0; i < nr_plante; i++)
+	{
+		afisare(plante[i]);
+	}
+	printf("am terminat o adisare de evctor\n");
+}
+//Realizati o functie care va creea un nou vector în care va copia dintr - un vector primit ca parametru obiectele care 
+// indeplinesc o anumita conditie.Stabiliti voi conditia in functie de un atribut sau doua atribute.
+struct Planta* vectnou(struct Planta* plante, int nr_plante, int* numar)
+{
+	
+	for (int i = 0; i < nr_plante; i++) {
+		if (plante[i].greutate > 1 && plante[i].varsta % 2 == 0)
+		{
+			(*numar)++;
+		}
+	}
+	struct Planta* vectplante = (struct Planta*)malloc(sizeof(struct Planta) * (*numar));
+	int j = 0;
+	for (int i = 0; i < nr_plante; i++) {
+		if (plante[i].greutate > 1 && plante[i].varsta % 2 == 0)
+		{
+			vectplante[j] = initilizare(plante[i].denumire, plante[i].varsta, plante[i].greutate);
+			j++;
+		}
+	}
+	printf("\ngata pct b\n");
+	return vectplante;
+}
+void dezalocare(struct Planta planta)
+{
+	if (planta.denumire != NULL)
+	{
+		free(planta.denumire);
+		planta.denumire = NULL;
+	}
+}
+void dezalocare_vect(struct Planta* plante, int nr_plante)
+{
+	for (int i = 0; i < nr_plante; i++)
+	{
+		dezalocare(plante[i]);
+	}
+	free(plante);
+	printf("gata dezalocarea\n");
+}
+void main()
+{
+	struct Planta planta = initilizare("crin", 2, 23.9090909090);
+	afisare(planta);
+	int nr_plante;
+	printf("Introduceti numar plante ");
+	scanf_s("%d", &nr_plante);
+	//trebuie sa aloc memorie unui vector 
+	struct Planta* plante = (struct Planta*)malloc(sizeof(struct Planta) * nr_plante);
+	for (int i = 0; i < nr_plante; i++)
+	{
+		plante[i] = initilizare("crin", i + 2, (i + 1) * (3.0 / 4.0) + 5);
+		afisare(plante[i]);
+	}
+	afisare_vector(plante, nr_plante);
+	int numar = 0;
+	
+	struct Planta* vectcalc= vectnou(plante, nr_plante,&numar);
+	afisare_vector(vectcalc, numar);
+
+	dezalocare_vect(vectcalc, numar);
+	dezalocare_vect(plante, nr_plante);
+}
