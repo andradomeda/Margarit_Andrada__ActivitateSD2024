@@ -1,0 +1,148 @@
+
+//Obiectele pe care le cititi dintr - un fisier le salvati intr - o lista simplu inlantuita.
+//
+//1. Implementati o functie care sterge un nod de pe o pozitie data ca parametru.Daca lista are mai putine
+//   noduri decat index - ul dat, nu se realizeaza stergerea.
+// 
+//2. Implementati o functie care sa insereze elementele in cadrul listei simplu inlantuite astfel incat acestea
+//   a fie sortate crescator dupa un camp la alegerea voastra.
+// 
+//3. Implementati o functie care salveaza intr - un vector toate obiectele care indeplinesc o conditie stabilita
+//   de voi.Realizati deep copy, astfel incat elementele din vector sa fie diferentiate de cele din lista.Aveti 
+//   grija la alocarea de spatiu, deoarece trebuie sa stabiliti pentru cate elemente veti aloca spatiu.
+// 
+//4. Implementati o functie care primeste lista si doua pozitii.In cadrul functiei trebuie sa interschimbati
+//   elementele de pe cele doua pozitii din lista primita.
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<stdlib.h>
+#include<string.h>
+
+
+typedef struct
+{
+	int index;
+	char* nume;
+	int litri;
+	float ph;
+	char carbogazoaza;
+}informatie;
+
+typedef struct
+{
+	informatie info;
+	struct nodLS* next;
+}nodLS;
+
+void afisare_info(informatie inf)
+{
+	printf("Index %d nume %s, litri %d, pH %f, carbogazoasa: %c\n\n",inf.index, inf.nume, inf.litri, inf.ph, inf.carbogazoaza);
+}
+void afisare_lista(nodLS* cap)
+{
+	nodLS* temp = cap;
+	while (temp != NULL)
+	{
+		afisare_info(temp->info);
+		temp = temp->next;
+	}
+}
+void inserare_nod(nodLS** cap, informatie info)//de ce nu poate sa aiba si lt nume in afara de info 
+{
+	nodLS* nou = (nodLS*)malloc(sizeof(nodLS));
+	nou->info.index = info.index;
+	nou->info.nume = (char*)malloc(sizeof(char) * (strlen(info.nume) + 1));
+	strcpy(nou->info.nume, info.nume);
+	nou->info.litri = info.litri;
+	nou->info.ph = info.ph;
+	nou->info.carbogazoaza = info.carbogazoaza;
+	nou->next = NULL;
+	//pana aici ai adugat dtele intr un nod.Acum trebuie sa adaugi prorpiu zis nodul in lista
+	if (*cap == NULL)
+	{
+		*cap = nou;
+	}
+	else
+	{
+		nodLS* temp;
+		temp = *cap;
+		while (temp->next!=NULL)
+			temp = temp->next;
+		temp->next = nou;
+	}
+}
+void stergereDupaNume(nodLS** cap, char* nume)
+{
+	nodLS* temp = *cap;
+	nodLS* prev = NULL;
+	while (temp != NULL)
+	{
+		nodLS* nextTemp = temp->next;
+		if (strcmp(temp->info.nume, nume) == 0)
+		{
+			if (temp == *cap)
+			{
+				*cap = nextTemp;
+			}
+			else
+			{
+				prev->next = nextTemp;
+			}
+			free(temp->info.nume);
+			free(temp);
+			temp = nextTemp;
+		}
+		else
+		{
+			prev = temp;
+			temp = nextTemp;	
+		}
+	}
+}
+void dezalocareLista(nodLS** cap)
+{
+	nodLS* temp = *cap;
+	
+	while (temp != NULL)
+	{
+		nodLS* nextTemp = temp->next;
+		free(temp->info.nume);
+		free(temp);
+		temp = nextTemp;
+	}
+	*cap = NULL;
+}
+
+void main()
+{
+	nodLS* cap = NULL;
+	FILE* fisier = fopen("Apa.txt", "r");
+	char buffer[20];
+	int nrElem = 0;
+	informatie infoSticla;
+	fscanf(fisier, "%d", &nrElem);
+	for (int i = 0; i < nrElem; i++)
+	{
+		fscanf(fisier, "%d", &infoSticla.index);
+		fscanf(fisier, "%s", buffer);
+		infoSticla.nume = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+		strcpy(infoSticla.nume, buffer);
+		fscanf(fisier, "%d", &infoSticla.litri);
+		fscanf(fisier, "%f", &infoSticla.ph);
+		fscanf(fisier, " %c", &infoSticla.carbogazoaza);
+		printf("Index: %d nume: %s, Litri: %d, pH: %.2f, Carbogazoasa: %c\n",infoSticla.index, infoSticla.nume, infoSticla.litri, infoSticla.ph, infoSticla.carbogazoaza);
+		printf("\n");
+
+		inserare_nod(&cap, infoSticla);
+		free(infoSticla.nume);
+
+	}
+	fclose(fisier);
+	printf("Afisare Lista:\n\n ");
+	afisare_lista(cap);
+	printf("o cerinta \n");
+	stergereDupaNume(&cap, "Borsec");
+	afisare_lista(cap);
+	dezalocareLista(&cap);
+}
