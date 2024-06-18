@@ -1,0 +1,151 @@
+//Creati un fisier in care sa aveti minim 10 obiecte de tipul structurii create.Asezarea in fisier a elementelor o faceti la libera alegere.
+//
+//Scrieti intr - un program C functia care sa citeasca obiectele din fisier si sa le salveze intr - un vector.
+//
+//Scrieti o functie care va salva un obiect  intr - un fisier text.
+//
+//Scrieti o functie care va salva un vector de obiecte intr - un fisier text.
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<malloc.h>
+#include<string.h>
+struct Apa
+{
+	char* brand;
+	int litri;
+	float ph;
+	char carbogazoasa;
+};
+
+struct Apa* adaugaSticla(struct Apa* vectApa, struct Apa sticla, int* nrSticle)
+{
+	struct Apa* vectnou = (struct Apa*)malloc(sizeof(struct Apa) * ((*nrSticle) + 1));
+	for (int i = 0; i < (*nrSticle); i++) {
+		vectnou[i] = vectApa[i];
+	}
+	vectnou[*nrSticle] = sticla;
+	(*nrSticle)++;
+	free(vectApa);
+	return vectnou;
+}
+
+
+void dezlocare_vect(struct Apa* vect, int* nrSticle)
+{
+	for (int i = 0; i < (*nrSticle); i++)
+	{
+		free(vect[i].brand);
+		vect[i].brand = NULL;
+	}
+	free(vect);
+	(*nrSticle) = 0;
+}
+void afisareSticla(const struct Apa apa)
+{
+	printf("Brand sticla: %s\t", apa.brand);
+	printf("Nr litri apa: %d\t", apa.litri);
+	printf("Ph apa: %.2f\t", apa.ph);
+	printf("este carbogzoasa: %c\t", apa.carbogazoasa);
+	printf("\n");
+}
+void afisareVect(const struct Apa* vectApa, int nrSticle)
+{
+	for (int i = 0; i < nrSticle; i++)
+	{
+		afisareSticla(vectApa[i]);
+	}
+}
+struct Apa* preluareTxt(const char* numeFisier, int* nrSticle)
+{
+	struct Apa* vectApa = NULL;
+
+	FILE* fisier = fopen(numeFisier, "r");
+	char buffer[100];
+	*nrSticle = 0;
+	if (fisier != NULL)
+	{
+		while (fgets(buffer, 99, fisier) != NULL)
+		{
+			struct Apa apa;
+			char delimitator[] = ",\n";
+			char* token = strtok(buffer, delimitator);
+			apa.brand = malloc(sizeof(char) * (strlen(token) + 1));
+			strcpy(apa.brand, token);
+			token = strtok(NULL, delimitator);
+			apa.litri = atoi(token);
+			token = strtok(NULL, delimitator);
+			apa.ph = atof(token);
+			token = strtok(NULL, delimitator);
+			if (strcmp(token, "da") == 0)
+			{
+				apa.carbogazoasa = 'd';
+			}
+			else if (strcmp(token, "nu") == 0)
+			{
+				apa.carbogazoasa = 'n';
+			}
+			vectApa = adaugaSticla(vectApa, apa, nrSticle);
+		}
+		fclose(fisier);
+	}
+	else
+	{
+		printf("nu s-a putut deschide fisierul");
+	}
+	return vectApa;
+}
+//struct Apa* preluareTxt(const char* numeFisier, int* nrSticle)
+//{
+//    struct Apa* vectApa = NULL;
+//
+//    FILE* fisier = fopen(numeFisier, "r");
+//    char buffer[100];
+//    *nrSticle = 0;
+//    if (fisier != NULL)
+//    {
+//        while (fgets(buffer, 99, fisier) != NULL)
+//        {
+//            struct Apa apa;
+//            char delimitator[] = ",\n";
+//            char* token = strtok(buffer, delimitator);
+//            apa.brand = malloc(sizeof(char) * (strlen(token) + 1));
+//            strcpy(apa.brand, token);
+//            token = strtok(NULL, delimitator);
+//            apa.litri = atoi(token);
+//            token = strtok(NULL, delimitator);
+//            apa.ph = atof(token);
+//            token = strtok(NULL, delimitator);
+//            if (strcmp(token, "da") == 0)
+//            {
+//                apa.carbogazoasa = 'd';
+//            }
+//            else if (strcmp(token, "nu") == 0)
+//            {
+//                apa.carbogazoasa = 'n';
+//            }
+//            vectApa = adaugaSticla(vectApa, apa, nrSticle);
+//        }
+//        fclose(fisier); // Folosim fclose pentru a închide fișierul
+//    }
+//    else
+//    {
+//        printf("Nu s-a putut deschide fisierul\n");
+//    }
+//    return vectApa;
+//}
+
+
+void main()
+{
+	int nrSticle = 0;
+
+	struct Apa* vectApe = preluareTxt("Apa.txt", &nrSticle);
+	afisareVect(vectApe, nrSticle);
+	dezlocare_vect(vectApe, &nrSticle);
+} 
+--------------------------
+Carpatica,1,7.8,da
+Borsec,2,7.9,nu
+Campari,4,7.6,nu
+Bucovina,1,7.5,da
