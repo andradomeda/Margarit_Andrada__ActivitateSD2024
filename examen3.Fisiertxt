@@ -95,46 +95,6 @@ struct Apa* preluareTxt(const char* numeFisier, int* nrSticle)
 	}
 	return vectApa;
 }
-//struct Apa* preluareTxt(const char* numeFisier, int* nrSticle)
-//{
-//    struct Apa* vectApa = NULL;
-//
-//    FILE* fisier = fopen(numeFisier, "r");
-//    char buffer[100];
-//    *nrSticle = 0;
-//    if (fisier != NULL)
-//    {
-//        while (fgets(buffer, 99, fisier) != NULL)
-//        {
-//            struct Apa apa;
-//            char delimitator[] = ",\n";
-//            char* token = strtok(buffer, delimitator);
-//            apa.brand = malloc(sizeof(char) * (strlen(token) + 1));
-//            strcpy(apa.brand, token);
-//            token = strtok(NULL, delimitator);
-//            apa.litri = atoi(token);
-//            token = strtok(NULL, delimitator);
-//            apa.ph = atof(token);
-//            token = strtok(NULL, delimitator);
-//            if (strcmp(token, "da") == 0)
-//            {
-//                apa.carbogazoasa = 'd';
-//            }
-//            else if (strcmp(token, "nu") == 0)
-//            {
-//                apa.carbogazoasa = 'n';
-//            }
-//            vectApa = adaugaSticla(vectApa, apa, nrSticle);
-//        }
-//        fclose(fisier); // Folosim fclose pentru a închide fișierul
-//    }
-//    else
-//    {
-//        printf("Nu s-a putut deschide fisierul\n");
-//    }
-//    return vectApa;
-//}
-
 
 void main()
 {
@@ -144,8 +104,103 @@ void main()
 	afisareVect(vectApe, nrSticle);
 	dezlocare_vect(vectApe, &nrSticle);
 } 
+
 --------------------------
 Carpatica,1,7.8,da
 Borsec,2,7.9,nu
 Campari,4,7.6,nu
 Bucovina,1,7.5,da
+----------------------------------------------------------------------------------------------------------------------------------------------------
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<malloc.h>
+struct Covor
+{
+	char* tara;
+	float pret;
+	char casmir;
+};
+void afisare(const struct Covor covor)
+{
+	printf("tara: %s\t", covor.tara);
+	printf("tara: %f\t", covor.pret);
+	printf("tara: %c\t", covor.casmir);
+	printf("\n");
+}
+void afisare_vect(const struct Covor* vect, int nrCovoare)
+{
+	for (int i = 0; i < nrCovoare; i++)
+	{
+		afisare(vect[i]);
+	}
+}
+struct Covor* adaugaCovor(struct Covor* vectcovor, struct Covor covor, int*nrCovoare)
+{
+	struct Covor* vectnou=(struct Covor*) malloc(sizeof(struct Covor)*((*nrCovoare)+1));
+	for (int i = 0; i < (*nrCovoare); i++)
+	{
+		vectnou[i] = vectcovor[i];
+	}
+	vectnou[*nrCovoare] = covor;
+	(*nrCovoare)++;
+	free(vectcovor);
+	return vectnou;
+}
+struct Covor* preluareTxt(char* numeFisier,int* nrCovoare)
+{
+	struct Covor* vectCovoare=NULL;
+	FILE* fisier = fopen(numeFisier, "r");
+	char buffer[250];
+	*nrCovoare = 0;
+	if (fisier != NULL)
+	{
+		
+		while (fgets(buffer, 249, fisier) != NULL)
+		{
+			struct Covor covor;
+			char delimiter[] = ",\n";
+			char* token = strtok(buffer, delimiter);
+			covor.tara = malloc(sizeof(char) * (strlen(token)+1));
+			strcpy(covor.tara, token);
+			token = strtok(NULL, delimiter);
+			covor.pret = atof(token);
+			token = strtok(NULL, delimiter);
+			if(strcmp(token,"da")==0)
+			covor.casmir = 'd';
+			if (strcmp(token, "nu") == 0)
+			covor.casmir = 'n';
+			vectCovoare = adaugaCovor(vectCovoare, covor, nrCovoare);
+		}
+		fclose(fisier);
+	}
+	else
+	{
+		printf("nu s a putut deschide fisierul");
+	}
+	return vectCovoare;
+}
+void dezlocare_vect(struct Covor* vect, int* nrCovoare)
+{
+	for (int i = 0; i < (*nrCovoare); i++)
+	{
+		free(vect[i].tara);
+		vect[i].tara = NULL;
+	}
+	free(vect);
+	(*nrCovoare) = 0;
+}
+void main()
+{
+	int nrCovoare = 0;
+	
+	struct Covor* vecttxt = preluareTxt("Apa.txt",  &nrCovoare);
+	afisare_vect(vecttxt, nrCovoare);
+	dezlocare_vect(vecttxt, &nrCovoare);
+}
+-----------------------------------
+India,500.0,nu
+Romania,400.56,da
+Spnia,767.789,da
+
