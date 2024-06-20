@@ -146,3 +146,278 @@ void main()
 	afisare_lista(cap);
 	dezalocareLista(&cap);
 }
+--------------------------------------------
+//Implementati o functie care sterge un nod de pe o pozitie data ca parametru.Daca lista are mai
+//  putine noduri decat index - ul dat, nu se realizeaza stergerea.
+//2. Implementati o functie care sa insereze elementele in cadrul listei simplu inlantuite astfel
+//  incat acestea a fie sortate crescator dupa un camp la alegerea voastra.
+//3. Implementati o functie care salveaza intr - un vector toate obiectele care indeplinesc o conditie
+//  stabilita de voi.Realizati deep copy, astfel incat elementele din vector sa fie diferentiate de cele 
+// din lista.Aveti grija la alocarea de spatiu, deoarece trebuie sa stabiliti pentru cate elemente veti aloca spatiu.
+// 
+//4. Implementati o functie care primeste lista si doua pozitii.In cadrul functiei trebuie sa interschimbati
+//elementele de pe cele doua pozitii din lista primita.
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+typedef struct
+{
+	int id;
+	char* nume;
+	float pH;
+	char carbogazoasa;
+}informatii;
+typedef struct NodLS
+{
+	informatii informatie;
+	struct NodLS* next;
+
+}NodLS;
+void afisare_sticla(informatii inf)
+{
+	printf("%d, %s, %f, %c\n\n", inf.id, inf.nume, inf.pH, inf.carbogazoasa);
+}
+void afisare_lista(struct NodLS* cap)
+{
+	struct NodLS* temp;
+	temp = cap;
+	while (temp)
+	{
+		afisare_sticla(temp->informatie);
+		temp = temp->next;
+	}
+}
+void adaugaNod(struct NodLS** cap, informatii info)
+{
+	struct NodLS* nou = (struct NodLS*)malloc(sizeof(struct NodLS));
+	struct NodLS* temp = *cap;
+	nou->informatie.id = info.id;
+	nou->informatie.nume = (char*)malloc(sizeof(char) * (strlen(info.nume) + 1));
+	strcpy(nou->informatie.nume, info.nume);
+	nou->informatie.pH = info.pH;
+	nou->informatie.carbogazoasa = info.carbogazoasa;
+	nou->next = NULL;
+	int k = 0;
+	while (k==0)
+	{
+		if (*cap == NULL)
+		{
+			*cap = nou;
+			k = 1;
+		}else if (temp->next != NULL)
+		{
+			temp = temp->next;
+		}
+		else
+		{
+			k = 1;
+			temp->next = nou;
+		}
+	}
+
+	
+}
+//Implementati o functie care sterge un nod de pe o pozitie data ca parametru.Daca lista are mai
+//  putine noduri decat index - ul dat, nu se realizeaza stergerea.
+void stergeNodPoz(struct NodLS** cap, int poz)
+{
+	if (*cap == NULL)
+	{
+		printf("lista este goala");
+		return;
+	}
+	struct NodLS* temp = *cap;
+	if (poz == 1)
+	{
+		*cap = temp->next;
+		free(temp->informatie.nume);
+		free(temp);
+		
+	}
+	else
+	{
+		
+		while (temp)
+		{
+			struct NodLS* tempNEXT = temp->next;
+			if (tempNEXT == NULL)
+			{
+				return;
+			}
+			if (tempNEXT->informatie.id == poz)
+			{
+				temp->next = tempNEXT->next;
+				free(tempNEXT->informatie.nume);
+				free(tempNEXT);
+			}
+			temp = temp->next;
+
+		}
+	}
+
+}
+
+//4. Implementati o functie care primeste lista si doua pozitii.In cadrul functiei trebuie sa interschimbati
+//elementele de pe cele doua pozitii din lista primita.
+
+void dezalocareLista(struct NodLS** cap)
+{
+	struct NodLS* temp = *cap;
+	while (temp)
+	{
+		*cap = temp->next;
+		free(temp->informatie.nume);
+		free(temp);
+	}
+	free(*cap);
+}
+//2. Implementati o functie care sa insereze elementele in cadrul listei simplu inlantuite astfel
+//  incat acestea a fie sortate crescator dupa un camp la alegerea voastra.
+void sortare(struct NodLS** cap, informatii inf)
+{
+	struct NodLS* nodNou = (struct NodLS*)malloc(sizeof(struct NodLS));
+	nodNou->informatie.id = inf.id;
+	nodNou->informatie.nume = (char*)malloc(sizeof(char) * strlen(inf.nume));
+	strcpy(nodNou->informatie.nume, inf.nume);
+	nodNou->informatie.pH = inf.pH;
+	nodNou->informatie.carbogazoasa = inf.carbogazoasa;
+	nodNou->next = NULL;
+	if (*cap == NULL || (*cap)->informatie.pH > nodNou->informatie.pH) {
+		nodNou->next = *cap;
+		*cap = nodNou;
+	}
+	else {
+		struct NodLS* temp = *cap;
+		while (temp->next != NULL && temp->next->informatie.pH < nodNou->informatie.pH) {
+			temp = temp->next;
+		}
+		nodNou->next = temp->next;
+		temp->next = nodNou;
+	}
+}
+//3. Implementati o functie care salveaza intr - un vector toate obiectele care indeplinesc o conditie
+//  stabilita de voi.Realizati deep copy, astfel incat elementele din vector sa fie diferentiate de cele 
+// din lista.Aveti grija la alocarea de spatiu, deoarece trebuie sa stabiliti pentru cate elemente veti aloca spatiu.
+struct NodLS* formareVect(struct NodLS* cap, int nrElem, int*k)
+{
+	
+	struct NodLS* temp = cap;
+	
+	for (int i = 0; i < nrElem; i++)
+	{
+		if(temp->informatie.carbogazoasa =='d')
+		{
+			(*k)++;
+		}
+		temp = temp->next;
+	}
+	temp = cap;
+	int j = 0;
+	struct NodLS* vect = (struct NodLS*)malloc(sizeof(struct NodLS) * (*k));
+	for (int i = 0; i < nrElem; i++)
+	{
+		if (temp->informatie.carbogazoasa == 'd')
+		{
+			//vect[j] = (*temp);//shallow copy 
+			vect[j].informatie.id = temp->informatie.id;
+			vect[j].informatie.nume = (char*)malloc(sizeof(char) * (strlen(temp->informatie.nume) + 1));
+			strcpy(vect[j].informatie.nume, temp->informatie.nume);
+			vect[j].informatie.pH = temp->informatie.pH;
+			vect[j].informatie.carbogazoasa = temp->informatie.carbogazoasa;
+			j++;
+		}
+		temp = temp->next;
+	}
+	return vect;
+}
+//4. Implementati o functie care primeste lista si doua pozitii.In cadrul functiei trebuie sa interschimbati
+//elementele de pe cele doua pozitii din lista primita.
+void interschimbare(struct NodLS* cap, int poz1, int poz2)
+{
+	struct NodLS* temp=cap;
+	struct NodLS* nod1 = cap;
+	struct NodLS* nod2 = cap;
+	while(temp)
+	{
+		if (temp->informatie.id == poz1)
+		{
+			nod1 = temp;
+
+		}
+		if (temp->informatie.id == poz2)
+		{
+			nod2 = temp;
+		}
+		temp = temp->next;
+	}
+	temp = nod1;
+	nod1->next = nod2->next;
+	nod1->informatie = nod2->informatie;
+	nod2->next = temp->next;
+	nod2->informatie = nod1->informatie;
+
+	temp = cap;
+	struct NodLS* tempNEXT = temp->next;
+	while (temp)
+	{
+		if (tempNEXT->informatie.id == poz2)
+		{
+			temp->next = nod2;
+		}
+		if (tempNEXT->informatie.id == poz1)
+		{
+			temp->next = nod1;
+		}
+			
+		temp = temp->next;
+	}
+
+
+	afisare_lista(cap);
+}
+void main()
+{
+	struct NodLS* cap=NULL;
+
+	FILE* fisier = fopen("Apa.txt", "r");
+	int nrElemente = 0;
+	char buffer[100];
+	fscanf(fisier, "%d", &nrElemente);
+	informatii inf;
+	for (int i = 0; i < nrElemente; i++)
+	{
+		fscanf(fisier, "%d", &inf.id);
+		/*fscanf(fisier, "%s", buffer);
+		inf.nume = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+		strcpy(inf.nume, buffer);*/
+		fscanf(fisier, "%s", buffer);
+
+		inf.nume = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+		strcpy(inf.nume, buffer);
+		fscanf(fisier, "%f", &inf.pH);
+		fscanf(fisier, " %c", &inf.carbogazoasa);
+		adaugaNod(&cap, inf);
+		free(inf.nume);
+	}
+	fclose(fisier);
+
+	printf("Lista din txt\n");
+	afisare_lista(cap);
+
+	printf("interschimbare lista\n");
+	interschimbare(cap, 2, 4);
+	//printf("Stergere nod de pe pozitie\n");
+	//stergeNodPoz(&cap, 3);
+	//afisare_lista(cap);
+	/*struct NodLS* vect = NULL;
+	printf("Shallow copy\n");
+	int k = 0;
+	vect = formareVect(cap, nrElemente,&k);
+	for (int i = 0; i < k; i++)
+	{
+		printf("%d, %s, %f, %c\n\n", vect[i].informatie.id, vect[i].informatie.nume, vect[i].informatie.pH, vect[i].informatie.carbogazoasa);
+
+	}*/
+	
+}
