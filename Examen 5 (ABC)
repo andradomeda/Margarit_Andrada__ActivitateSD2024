@@ -1,0 +1,315 @@
+
+////#define _CRT_SECURE_NO_WARNINGS
+////#include <stdio.h>
+////#include <stdlib.h>
+////#include <string.h>
+////
+////struct Camera {
+////    char* model;
+////    int nrLentile;
+////    char** culoareLentila;
+////};
+////
+////int main() {
+////    // Crearea unei camere
+////    struct Camera camera1;
+////
+////    // Inițializarea modelului
+////    camera1.model = (char*)malloc(20 * sizeof(char));
+////    if (camera1.model != NULL) {
+////        strcpy(camera1.model, "Canon EOS R5");
+////    }
+////    else {
+////        printf("Eroare la alocarea memoriei pentru model.\n");
+////        return 1;
+////    }
+////
+////    // Inițializarea numărului de lentile
+////    camera1.nrLentile = 3;
+////
+////    // Inițializarea culorilor lentilelor
+////    camera1.culoareLentila = (char**)malloc(camera1.nrLentile * sizeof(char*));
+////    if (camera1.culoareLentila != NULL) {
+////        for (int i = 0; i < camera1.nrLentile; i++) {
+////            camera1.culoareLentila[i] = (char*)malloc(20 * sizeof(char));
+////            if (camera1.culoareLentila[i] != NULL) {
+////                // Inițializarea fiecărei culori
+////                switch (i) {
+////                case 0:
+////                    strcpy(camera1.culoareLentila[i], "Negru");
+////                    break;
+////                case 1:
+////                    strcpy(camera1.culoareLentila[i], "Alb");
+////                    break;
+////                case 2:
+////                    strcpy(camera1.culoareLentila[i], "Gri");
+////                    break;
+////                }
+////            }
+////            else {
+////                printf("Eroare la alocarea memoriei pentru culoarea lentilei %d.\n", i);
+////                return 1;
+////            }
+////        }
+////    }
+////    else {
+////        printf("Eroare la alocarea memoriei pentru culorile lentilelor.\n");
+////        return 1;
+////    }
+////
+////    // Afișarea valorilor
+////    printf("Model: %s\n", camera1.model);
+////    printf("Numar Lentile: %d\n", camera1.nrLentile);
+////    for (int i = 0; i < camera1.nrLentile; i++) {
+////        printf("Culoare Lentila %d: %s\n", i + 1, camera1.culoareLentila[i]);
+////    }
+////
+////    // Eliberarea memoriei
+////    free(camera1.model);
+////    for (int i = 0; i < camera1.nrLentile; i++) {
+////        free(camera1.culoareLentila[i]);
+////    }
+////    free(camera1.culoareLentila);
+////
+////    return 0;
+////}
+//#define _CRT_SECURE_NO_WARNINGS
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//
+//struct Biblioteca {
+//    char* nume;
+//    int nrSectiuni;
+//    char*** sectiuni;
+//};
+//
+//void initializeBiblioteca(struct Biblioteca* biblioteca, const char* nume, int nrSectiuni) {
+//    // Inițializarea numelui bibliotecii
+//    biblioteca->nume = (char*)malloc((strlen(nume) + 1) * sizeof(char));
+//    if (biblioteca->nume != NULL) {
+//        strcpy(biblioteca->nume, nume);
+//    }
+//    else {
+//        printf("Eroare la alocarea memoriei pentru numele bibliotecii.\n");
+//        exit(1);
+//    }
+//
+//    // Inițializarea numărului de secțiuni
+//    biblioteca->nrSectiuni = nrSectiuni;
+//
+//    // Inițializarea secțiunilor
+//    biblioteca->sectiuni = (char***)malloc(biblioteca->nrSectiuni * sizeof(char**));
+//    if (biblioteca->sectiuni != NULL) {
+//        for (int i = 0; i < biblioteca->nrSectiuni; i++) {
+//            // Inițializarea fiecărei secțiuni cu 2 rafturi
+//            biblioteca->sectiuni[i] = (char**)malloc(2 * sizeof(char*));
+//            if (biblioteca->sectiuni[i] != NULL) {
+//                for (int j = 0; j < 2; j++) {
+//                    // Inițializarea fiecărui raft cu 3 cărți
+//                    biblioteca->sectiuni[i][j] = (char*)malloc(50 * sizeof(char));
+//                    if (biblioteca->sectiuni[i][j] != NULL) {
+//                        // Setarea valorii cărților
+//                        sprintf(biblioteca->sectiuni[i][j], "Sectiunea %d Raftul %d Cartea %d", i + 1, j + 1, 1 + (j * 3));
+//                    }
+//                    else {
+//                        printf("Eroare la alocarea memoriei pentru raftul %d al secțiunii %d.\n", j + 1, i + 1);
+//                        exit(1);
+//                    }
+//                }
+//            }
+//            else {
+//                printf("Eroare la alocarea memoriei pentru secțiunea %d.\n", i + 1);
+//                exit(1);
+//            }
+//        }
+//    }
+//    else {
+//        printf("Eroare la alocarea memoriei pentru secțiuni.\n");
+//        exit(1);
+//    }
+//}
+//
+//void elibereazaBiblioteca(struct Biblioteca* biblioteca) {
+//    // Eliberarea memoriei
+//    free(biblioteca->nume);
+//    for (int i = 0; i < biblioteca->nrSectiuni; i++) {
+//        for (int j = 0; j < 2; j++) {
+//            free(biblioteca->sectiuni[i][j]);
+//        }
+//        free(biblioteca->sectiuni[i]);
+//    }
+//    free(biblioteca->sectiuni);
+//}
+//
+//void afiseazaBiblioteca(const struct Biblioteca* biblioteca) {
+//    // Afișarea valorilor
+//    printf("Nume Biblioteca: %s\n", biblioteca->nume);
+//    for (int i = 0; i < biblioteca->nrSectiuni; i++) {
+//        printf("Sectiunea %d:\n", i + 1);
+//        for (int j = 0; j < 2; j++) {
+//            printf("  Raftul %d: %s\n", j + 1, biblioteca->sectiuni[i][j]);
+//        }
+//    }
+//}
+//
+//int main() {
+//    struct Biblioteca biblioteca;
+//
+//    // Inițializarea bibliotecii
+//    initializeBiblioteca(&biblioteca, "Biblioteca Centrala", 2);
+//
+//    // Afișarea bibliotecii
+//    afiseazaBiblioteca(&biblioteca);
+//
+//    // Eliberarea memoriei
+//    elibereazaBiblioteca(&biblioteca);
+//
+//    return 0;
+//}
+
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+struct Camera
+{
+	int id;
+	char* model;
+	int nrLentile;
+	char** culoareLentila;
+	float* pret;
+};
+struct NodABC
+{
+	struct Camera info;
+	struct NodABC* st;
+	struct NodABC* dr;
+};
+
+void afisareInfo(struct Camera camera)
+{
+	printf("%d ", camera.id);
+	printf("%s ", camera.model);
+	printf("%d ", camera.nrLentile);
+	for (int i = 0; i < camera.nrLentile; i++)
+	{
+		printf(" %s, ", camera.culoareLentila[i]);
+
+	}
+	for (int i = 0; i < camera.nrLentile; i++)
+	{
+		
+		printf("%.2f, ", camera.pret[i]);
+
+	}
+	printf("\n");
+}
+struct NodABC* inserareNod(struct NodABC* rad, struct Camera camera)
+{
+	//in primul rand verificam daca avem unde sa inseram 
+	if (rad)
+	{
+		if (rad->info.nrLentile > camera.nrLentile)
+		{
+			rad->st = inserareNod(rad->st, camera);
+		}
+		else//daca suntr mai mari sau egale intr pe dreapta
+		{
+			rad->dr = inserareNod(rad->dr, camera);
+		}
+		return rad;//ca sa refac legaturi 
+	}
+	else// daca nu avem nod cream noi unul, caruia trebuie sa ii alocam memorie
+	{
+		struct NodABC* nou = (struct NodABC*)malloc(sizeof(struct NodABC));
+		nou->info = camera;
+		nou->dr = NULL;
+		nou->st = NULL;
+		return nou;//returnez dresa noului nod creat
+	}
+}
+struct Camera citesteCameradinTXT(FILE* fisier)
+{
+	struct Camera camera;
+	char buffer[100];
+	fscanf(fisier, "%d", &camera.id);
+
+	fscanf(fisier, "%s", buffer);//buffer este un array si cand il folosesti as el deja este un pointer catre primul elemnet la array ului
+	camera.model = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+	strcpy(camera.model, buffer);
+
+	fscanf(fisier, "%d", &camera.nrLentile);
+
+	camera.culoareLentila = (char**)malloc(camera.nrLentile * sizeof(char*));
+	for (int i = 0; i < camera.nrLentile; i++)
+	{
+		fscanf(fisier, " %s", buffer);
+		camera.culoareLentila[i] = (char*)malloc((strlen(buffer) + 1) * sizeof(char));
+		strcpy(camera.culoareLentila[i], buffer);
+	}
+	camera.pret = (float*)malloc(sizeof(float) * camera.nrLentile);
+	for (int j = 0; j < camera.nrLentile; j++) {
+		fscanf(fisier, "%f", &camera.pret[j]);
+	}
+	return camera;
+}
+
+void afisareArbore(struct NodABC* rad)
+{
+	if(rad)
+	{ 
+		afisareArbore(rad->st);
+		afisareInfo(rad->info);
+		afisareArbore(rad->dr);
+	}
+	
+}
+
+
+
+void elibMemo(struct Camera camera, int nrLentile)
+{
+	free(camera.model);
+	for (int j = 0; j < camera.nrLentile; j++)
+	{
+		free(camera.culoareLentila[j]);
+	}
+	free(camera.culoareLentila);
+	free(camera.pret);
+}
+
+void main()
+{
+	struct NodABC* rad = NULL;
+	struct Camera camera;
+	FILE* fisier = fopen("camera.txt", "r");
+	
+	int nrElemente=0;
+	if (fisier)
+	{
+		fscanf(fisier, "%d", &nrElemente);//fscanf citeste pana la spatiu!!
+		for (int i = 0; i < nrElemente; i++)
+		{
+			camera = citesteCameradinTXT(fisier);
+			rad =inserareNod(rad, camera);
+		}
+		
+		/*
+		printf("afisare citire din txt\n\n");
+		afisareInfo(camera, camera.nrLentile);*/
+
+		//elibMemo(camera, camera.nrLentile);
+		
+		
+	}
+	fclose(fisier);
+	afisareArbore(rad);
+	/*else
+	{
+		printf("nu s a deschis fisierul");
+	}*/
+	
+	
+	//tot timpul cand inserezi inserarea se face in nodul frunza si este returnat akrborele
+}
