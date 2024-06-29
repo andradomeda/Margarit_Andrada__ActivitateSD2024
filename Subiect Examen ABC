@@ -1,0 +1,277 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+struct Produs
+{
+	unsigned short int id;
+	char* denumire;
+	unsigned short int stoc_prod;
+	unsigned char nr_clienti;
+	unsigned short int* stocuri_clienti;
+};
+struct NodABC {
+	struct Produs info;
+	struct NodABC* st;
+	struct NodABC* dr;
+};
+void afiseaza_produs(struct Produs produs)
+{
+	printf("id produs: %hu,", produs.id);
+	printf(" denumire produs: %s, ", produs.denumire);
+	printf(" stoc produs: %hu, ", produs.stoc_prod);
+	printf(" nr clienti: %hhu, ", produs.nr_clienti);
+	printf(" stocuri la clienti: ");
+	for (int i = 0; i < produs.nr_clienti; i++) {
+		printf(" %hu", produs.stocuri_clienti[i]);
+	}
+	printf("\n");
+	
+}
+struct NodABC* adaugaFrunzadupaId(struct NodABC* rad, struct Produs prod)
+{
+	if (rad)
+	{
+		if (rad->info.id > prod.id)
+		{
+			rad->st = adaugaFrunzadupaId(rad->st, prod);
+		}
+		else if(rad->info.id < prod.id || rad->info.id == prod.id)
+		{
+			rad->dr = adaugaFrunzadupaId(rad->dr, prod);
+		}
+		return rad;
+
+	}
+	else
+	{
+		struct NodABC* nou = (struct NodABC*)malloc(sizeof(struct NodABC));
+		nou->info = prod;//shllow copy
+		nou->dr = NULL;
+		nou->st = NULL;
+		return nou;
+	}
+}
+struct NodABC* adaugaFrunzadupaStocProduse(struct NodABC* rad, struct Produs prod)
+{
+	if (rad)
+	{
+		if (rad->info.stoc_prod > prod.stoc_prod)
+		{
+			rad->st = adaugaFrunzadupaStocProduse(rad->st, prod);
+		}
+		else if (rad->info.stoc_prod < prod.stoc_prod || rad->info.stoc_prod == prod.stoc_prod)
+		{
+			rad->dr = adaugaFrunzadupaStocProduse(rad->dr, prod);
+		}
+		return rad;
+
+	}
+	else
+	{
+		struct NodABC* nou = (struct NodABC*)malloc(sizeof(struct NodABC));
+		nou->info = prod;//shllow copy
+		nou->dr = NULL;
+		nou->st = NULL;
+		return nou;
+	}
+}
+void afisareArbore(struct NodABC* rad)
+{
+	//inordine
+	if(rad){
+	afisareArbore(rad->st);
+	afiseaza_produs(rad->info);
+	afisareArbore(rad->dr);
+	}
+
+}
+void stocMare(struct NodABC* rad,int prag, int* counter)
+{
+	if (rad)
+	{
+		if (rad->info.stoc_prod > prag)
+		{
+			(*counter)++;
+		}
+		stocMare(rad->dr, prag, counter);
+		stocMare(rad->st, prag, counter);
+	}
+}
+//functie care deteremina vl stoc mediu la clienti pt un produs specifict prinid ca param
+float media(struct NodABC* rad, int id, int*k, int nrProduse )
+{
+	if (rad)
+	{
+		if (rad->info.id == id)
+		{
+			
+			float media = 0.0;
+			for (int i = 0; i < rad->info.nr_clienti; i++)
+			{
+				media = media + rad->info.stocuri_clienti[i];	
+			}
+			media = media / rad->info.nr_clienti;
+			return media;
+		}
+		else if(k==nrProduse)
+		{
+			printf("Nu s-a gasit ID-ul");
+			return;
+		}
+		else
+		{
+			(*k)++;
+			media(rad->st, id, k, nrProduse);
+			media(rad->dr, id, k, nrProduse);
+		}
+	}
+	
+}
+
+struct NodABC* stergeRad(struct NodABC* rad)
+{
+	if (rad)
+	{
+		if (rad->st==NULL && rad->dr == NULL)
+		{
+			free(rad);
+			rad = NULL;
+		}
+		else
+		if (rad->st == NULL && rad->dr != NULL)
+		{
+			struct NodABC* temp = rad;
+
+			rad=rad->dr;
+
+			free(temp);
+			temp = NULL;
+			return rad;
+		}
+		if (rad->st != NULL && rad->dr == NULL)
+		{
+			struct NodABC* temp = rad;
+
+			rad = rad->st;
+
+			free(temp);
+			temp = NULL;
+			return rad;
+		}
+		struct NodABC* temp, * temp_parinte=NULL;
+		if (rad->st != NULL && rad->dr != NULL)
+		{
+			temp = rad->st;
+			while (temp->dr!=NULL)
+			{
+				temp_parinte = temp;
+				temp = temp->dr;
+			}
+			rad->info = temp->info;
+			if(temp_parinte!=NULL)
+			{
+				if (temp->st != NULL)
+				{
+					temp_parinte->dr = temp->st;
+				}
+				else
+				{
+					temp_parinte->dr = NULL;
+				}
+			}
+			else
+			{
+				if (temp->st != NULL)
+				{
+					rad->st = temp->st;
+				}
+				else
+				{
+					rad->st = NULL;
+				}
+			}
+			free(temp);
+		
+		}
+	}
+	return rad;
+}
+//void dezalocareProdus(struct Produs* produs) {
+//	// Eliberăm memoria pentru denumire
+//	free(produs->denumire);
+//
+//	// Eliberăm memoria pentru stocuri_clienti
+//	free(produs->stocuri_clienti);
+//}
+//
+//
+//void dezalocareABC(struct NodABC* radacina) {
+//	if (radacina != NULL) {
+//		// Dezalocăm subarborii stâng și drept
+//		dezalocareABC(radacina->st);
+//		dezalocareABC(radacina->dr);
+//
+//		// Dezalocăm produsul din nodul curent
+//		dezalocareProdus(&radacina->info);
+//
+//		// Dezalocăm nodul curent
+//		free(radacina);
+//	}
+//}
+//struct NodABC* dezalocare(struct NodABC* rad)
+//{
+//if (rad)
+//{
+//		rad->dr = dezalocare(rad->dr);
+//		rad->st = dezalocare(rad->st);
+//		free(rad->info.denumire);
+//		free(rad->info.stocuri_clienti);
+//		free(rad);
+//	}
+//	return rad;
+//}
+void main()
+{
+	struct NodABC* rad1 = NULL;
+	struct NodABC* rad2 = NULL;
+	struct Produs produsul;
+	FILE* fisier = fopen("camera.txt", "r");
+	int nrProduse;
+	fscanf(fisier, "%d", &nrProduse);
+	for (int i = 0; i < nrProduse; i++)
+	{
+		char buffer[100];
+		fscanf(fisier, "%hu", &produsul.id);
+		fscanf(fisier, "%s", buffer);
+		produsul.denumire = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+		strcpy(produsul.denumire, buffer);
+		fscanf(fisier, "%hu", &produsul.stoc_prod);
+		fscanf(fisier, " %hhu", &produsul.nr_clienti);
+		produsul.stocuri_clienti = (int*)malloc(sizeof(int) * produsul.nr_clienti);
+		for (int i = 0; i < produsul.nr_clienti; i++)
+		{
+			fscanf(fisier, " %hu", &produsul.stocuri_clienti[i]);
+		}
+		//afiseaza_produs(produsul);
+		rad1 = adaugaFrunzadupaId(rad1, produsul);
+		rad2 = adaugaFrunzadupaStocProduse(rad2, produsul);
+
+		
+	}
+	afisareArbore(rad1);
+	//pana aici ai arborele creat
+	int counter = 0;
+	stocMare(rad2, 150, &counter);
+	printf("Numar de produse cu stoc mai mare decat 150: %d\n", counter);
+	int k = 0;
+	float medie = media(rad1, 1, &k,nrProduse);
+	printf("media pt produsul cu id-ul %d este %f", nrProduse, medie);
+	printf("\n\n\n");
+	stergeRad(rad1);
+	afisareArbore(rad1);
+	
+	/*dezalocareProdus(rad1);
+	dezalocareProdus(rad2);*/
+	fclose(fisier);
+}
