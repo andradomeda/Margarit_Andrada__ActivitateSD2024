@@ -1,0 +1,170 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+struct Copil
+{
+	int id;
+	char* nume;
+};
+typedef struct Copil Copil;
+struct Heap
+{
+	Copil* vect;
+	int nr_elem;
+};
+typedef struct Heap Heap;
+Copil extrageCopil(FILE* fisier)
+{
+	Copil copil;
+	char buffer[20];
+	fscanf(fisier, "%d", &copil.id);
+	fscanf(fisier, "%s", buffer);
+	copil.nume = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+	strcpy(copil.nume, buffer);
+	return copil;
+}
+void afiseazaCopil(Copil copil)
+{
+	printf("%d, %s\n", copil.id, copil.nume);
+}
+void filtrare(Heap heap, int index)
+{
+	int indexRad = index;
+	int indexSt = index * 2 + 1;
+	int indexDr = index * 2 + 2;
+	//pt MinHeap
+	if (indexDr<heap.nr_elem && heap.vect[indexDr].id>heap.vect[indexRad].id)
+	{
+		indexRad = indexDr;
+	}
+	if (indexSt<heap.nr_elem && heap.vect[indexSt].id>heap.vect[indexRad].id)
+	{
+		indexRad = indexSt;
+	}
+	if (indexRad != index)
+	{
+		Copil aux = heap.vect[index];
+		heap.vect[index] = heap.vect[indexRad];
+		heap.vect[indexRad] = aux;
+		filtrare(heap, indexRad);
+	}
+}
+void adaugaInHeap(Heap* heap, Copil copil)
+{
+	Copil* vectNou = (Copil*)malloc(sizeof(Copil) * (heap->nr_elem + 1));
+	for (int i = 0; i < heap->nr_elem; i++)
+	{
+		vectNou[i] = heap->vect[i];
+	}
+	heap->nr_elem++;
+	vectNou[heap->nr_elem - 1] = copil;
+	
+	free(heap->vect);
+	heap->vect = vectNou;
+
+	for (int i = (heap->nr_elem -1)/2; i >= 0; i--)
+	{
+		filtrare(*heap, i);
+	}
+}
+void afisareHeap(Heap heap)
+{
+	for (int i = 0; i < heap.nr_elem; i++)
+	{
+		afiseazaCopil(heap.vect[i]);
+	}
+}
+void scrieInTxt(const char* numeFisier,Heap heap)
+{
+	FILE* f = fopen(numeFisier, "w");
+	if(heap.vect)
+	{
+		for (int i = 0; i < heap.nr_elem; i++)
+		{
+			fprintf(f, "%d, %s\n", heap.vect[i].id, heap.vect[i].nume);
+		}
+	}
+	fclose(f);
+}
+//extragere radacina; asta inseamna ca trebuie sa returnam radacina gasita
+Copil extragereRad(Heap* heap)
+{
+	if (heap->vect)
+	{
+		Copil aux;
+		aux = heap->vect[0];
+		heap->vect[0] = heap->vect[heap->nr_elem - 1];
+		heap->vect[heap->nr_elem - 1] = aux;
+		heap->nr_elem--;
+		for (int i = 0; i < heap->nr_elem; i++)
+			filtrare(*heap, i);
+		return aux;
+	}
+}
+void stergeUnElement(Heap* heap, int indexCautat)
+{
+	int k = 0;
+	for (int i = 0; i < heap->nr_elem-1; i++)
+	{
+		if (heap->vect[i].id == indexCautat)
+		{
+			k++;
+		}
+	}
+	Copil* vectNou = (Copil*)malloc(sizeof(Copil) * (heap->nr_elem-k));
+	k = 0;
+	for (int i = 0; i < heap->nr_elem; i++)
+	{
+		if (heap->vect[i].id != indexCautat)
+		{
+			vectNou[k] = heap->vect[i];
+			k++;
+		}
+	}
+	free(heap->vect);
+	heap->vect = vectNou;
+	heap->nr_elem = k;
+	for (int i = (k / 2) - 1; i >= 0; i--)
+	{
+		filtrare(*heap, i);
+	}
+}
+void dezalocareHeap(Heap heap)
+{
+	for (int i = 0; i < heap.nr_elem; i++)
+	{
+		free(heap.vect[i].nume);
+		heap.vect[i].nume = NULL;
+	}
+	free(heap.vect);
+	heap.vect = NULL;
+}
+void main()
+{
+	Copil copil;
+	Heap heap;
+	heap.nr_elem = 0;
+	heap.vect = NULL;
+
+	int nrLinii = 0;
+	FILE* fisier = fopen("Text.txt", "r");
+	fscanf(fisier, "%d", &nrLinii);
+
+	for (int i = 0; i < nrLinii; i++)
+	{
+		copil = extrageCopil(fisier);
+		afiseazaCopil(copil);
+		adaugaInHeap(&heap, copil);
+	}
+	printf("-----------MAX Heap-ul:----------------\n");
+	afisareHeap(heap);
+	
+	/*printf("scriere in txt\n");
+	scrieInTxt("Text1.txt",heap);*/
+	printf("-----------Stergere 12:----------------\n");
+	stergeUnElement(&heap, 12);
+	afisareHeap(heap);
+
+	fclose(fisier);
+}
