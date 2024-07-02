@@ -1,0 +1,139 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+typedef struct Pictura Pictura;
+typedef struct Stiva Stiva;
+struct Pictura
+{
+	int nrCulori;
+	char** culori;
+};
+struct Stiva
+{
+	Pictura inf;
+	Stiva* next;
+};
+Pictura extragePictura(FILE* fisier)
+{
+	Pictura pic;
+	char buffer[100];
+	fscanf(fisier, "%d", &pic.nrCulori);
+	pic.culori = (char**)malloc(sizeof(char*) * pic.nrCulori);
+	for (int i = 0; i < pic.nrCulori; i++)
+	{
+		fscanf(fisier, "%s", buffer);
+		pic.culori[i]= (char*)malloc(sizeof(char) * (strlen(buffer)+1));
+		strcpy(pic.culori[i], buffer);
+	}
+	return pic;
+}
+void afisarePictura(Pictura pictura)
+{
+	printf("Numar de culori: %d iar culorile sunt: ", pictura.nrCulori);
+	for (int i = 0; i < pictura.nrCulori; i++)
+	{
+		printf("%s ", pictura.culori[i]);
+	}
+	printf("\n");
+}
+void push(Stiva** varf, Pictura pic)
+{
+	Stiva* nodNou = (Stiva*)malloc(sizeof(Stiva));
+	nodNou->next = NULL;
+	nodNou->inf.nrCulori = pic.nrCulori;
+	nodNou->inf.culori = (char**)malloc(sizeof(char*)*pic.nrCulori);
+	for (int i = 0; i < pic.nrCulori; i++)
+	{
+		
+		nodNou->inf.culori[i] = (char*)malloc(sizeof(char) *(strlen(pic.culori[i])+1));
+		strcpy(nodNou->inf.culori[i], pic.culori[i]);
+	}
+	if (*varf == NULL)
+	{
+		*varf = nodNou;
+	}
+	else
+	{
+		nodNou->next = *varf;
+		*varf = nodNou;
+	}
+}
+int pop(Stiva** varf, Pictura* pic)
+{
+	if (*varf == NULL)
+	{
+		return -1;
+	}
+	else
+	{
+		pic->nrCulori = (*varf)->inf.nrCulori;
+		pic->culori = (char**)malloc(sizeof(char*) * pic->nrCulori);
+		for (int i = 0; i < pic->nrCulori; i++)
+		{
+			pic->culori[i] = (char*)malloc(sizeof(char) * (strlen((*varf)->inf.culori[i])+1));
+			strcpy(pic->culori[i], (*varf)->inf.culori[i]);
+		}
+		Stiva* temp = *varf;
+		(*varf) = temp->next;
+		/*for (int i = 0; i < temp->inf.nrCulori; i++)
+		{
+			free(temp->inf.culori[i]);
+		}
+		free(temp->inf.culori);
+		free(temp);*/
+		for (int i = 0; i < temp->inf.nrCulori; i++) {
+			free(temp->inf.culori[i]);
+		}
+		// MODIFICARE: Eliberarea memoriei pentru vectorul de culori al nodului stivei
+		free(temp->inf.culori);
+		free(temp);
+		return 1;
+	}
+}
+void afisareStiva(Stiva* varf)
+{
+	Stiva* temp = varf;
+	while(temp)
+	{
+		afisarePictura(temp->inf);
+		temp = temp->next;
+	}
+}
+void dezalocareStiva(Stiva* varf)
+{
+	Pictura picturaStearsa;
+	while (pop(&varf, &picturaStearsa) == 1)
+	{
+		for (int i = 0; i < picturaStearsa.nrCulori; i++)
+		{
+			free(picturaStearsa.culori[i]);
+		}
+		free(picturaStearsa.culori);
+		
+	}
+	
+}
+void main()
+{
+	Pictura pictura;
+	Stiva* varf=NULL;
+	FILE* fisier = fopen("Text.txt", "r");	
+	int nrElemente;
+	fscanf(fisier, "%d", &nrElemente);
+	for (int i = 0; i < nrElemente; i++)
+	{
+		pictura = extragePictura(fisier);
+		//afisarePictura(pictura);
+		
+		push(&varf, pictura);
+	}
+	afisareStiva(varf);
+	printf("-------------- dupa un pop-------------\n");
+	Pictura pic;
+	pop(&varf, &pic);
+	afisareStiva(varf);
+	fclose(fisier);
+	dezalocareStiva(&varf);
+}
+==============================================================================================================================================
