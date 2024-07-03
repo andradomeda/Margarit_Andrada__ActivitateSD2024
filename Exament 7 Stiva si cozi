@@ -137,3 +137,113 @@ void main()
 	dezalocareStiva(&varf);
 }
 ==============================================================================================================================================
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+typedef struct Pictura Pictura;
+typedef struct NodCoada NodCoada;
+struct Pictura
+{
+	int id;
+	char* culoare;
+};
+struct NodCoada
+{
+	Pictura inf;
+	NodCoada* next;
+};
+Pictura ExtragePictura(FILE* fisier)
+{
+	Pictura pic;
+	fscanf(fisier,"%d", &pic.id);
+	char buffer[100];
+	fscanf(fisier, "%s", buffer);
+	pic.culoare = (char*)malloc(strlen(buffer) + 1);
+	strcpy(pic.culoare, buffer);
+	return pic;
+}
+void afiseazaPictura(Pictura pic)
+{
+	printf("%d, %s \n", pic.id, pic.culoare);
+}
+void put(NodCoada** prim,NodCoada** ultim, Pictura pic)
+{
+	NodCoada* nodNou = (NodCoada*)malloc(sizeof(NodCoada));
+	nodNou->inf.id = pic.id;
+	nodNou->inf.culoare = (char*)malloc(sizeof(char) * (strlen(pic.culoare) + 1));
+	strcpy(nodNou->inf.culoare, pic.culoare);
+	nodNou->next = NULL;
+
+	if ((*prim) == NULL && (*ultim) == NULL)
+	{
+		*prim = *ultim = nodNou;
+	}
+	else
+	{
+		(*ultim)->next = nodNou;
+		(*ultim) = nodNou;
+	}
+}
+int get(NodCoada** prim, NodCoada** ultim,Pictura* pic)
+{
+	
+	if ((*prim) == NULL)
+	{
+		(*ultim) == NULL;
+		return -1;
+	}
+	else
+	{
+		(*pic).id = (*prim)->inf.id;
+		(*pic).culoare = (char*)malloc(sizeof(char) * (strlen((*prim)->inf.culoare) + 1));
+		strcpy((*pic).culoare, (*prim)->inf.culoare);
+
+		NodCoada* temp = (*prim);
+		(*prim) = (*prim)->next;
+		free(temp->inf.culoare);
+		free(temp);
+		return 1;
+	}
+}
+void afisareCoada(NodCoada* prim)
+{
+	NodCoada* temp = prim;
+	while (temp)
+	{
+		afiseazaPictura(temp->inf);
+		temp = temp->next;
+	}
+}
+void dezalocare(NodCoada** prim, NodCoada** ultim)
+{
+	Pictura pic;
+	while (get(prim, ultim, &pic) == 1)
+	{
+		free(pic.culoare);
+	}
+	*prim = NULL;
+	*ultim = NULL;
+}
+void main()
+{
+	Pictura pictura;
+	NodCoada* prim = NULL;
+	NodCoada* ultim = NULL;
+	FILE* fisier = fopen("Text.txt", "r");
+	int nrElemente;
+	fscanf(fisier,"%d", &nrElemente);
+	for (int i = 0; i < nrElemente; i++)
+	{
+		pictura = ExtragePictura(fisier);
+		//afiseazaPictura(pictura);
+		put(&prim, &ultim, pictura);
+	}
+	afisareCoada(prim);
+	printf("-------------------dupa un get----------------\n");
+	Pictura pics;
+	get(&prim, &ultim, &pics);
+	afisareCoada(prim);
+	dezalocare(&prim, &ultim);
+	fclose(fisier);
+}
