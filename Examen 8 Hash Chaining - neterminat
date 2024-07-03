@@ -1,0 +1,149 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+
+#define HTABLE_SIZE 8
+
+//facem struct nod si tabel 
+typedef struct Persoana Persoana;
+typedef struct NodLS NodLS;
+typedef struct HashT HashT;
+struct Persoana
+{
+	int id;
+	char* nume;
+};
+struct NodLS
+{
+	Persoana inf;
+	NodLS* next;
+};
+struct HashT
+{
+	NodLS** vect;
+	int nrElem;
+};
+int functieHash(int cheie, int nrElemente)
+{
+	return cheie % nrElemente;
+}
+Persoana ExtragePersoana(FILE* fisier)
+{
+	Persoana pers;
+	fscanf(fisier, "%d", &pers.id);
+	char buffer[100];
+	fscanf(fisier, "%s", buffer);
+	pers.nume = (char*)malloc(sizeof(char) * (strlen(buffer) + 1));
+	strcpy(pers.nume, buffer);
+	return pers;
+}
+void afiseazaPersoana(Persoana persoana)
+{
+	printf("%d, %s \n", persoana.id, persoana.nume);
+}
+void adaugaNod(NodLS** cap, Persoana persoana)
+{
+	NodLS* nou = (NodLS*)malloc(sizeof(NodLS));
+	nou->next = NULL;
+	nou->inf.id = persoana.id;
+	nou->inf.nume = (char*)malloc(sizeof(char) * (strlen(persoana.nume) + 1));
+	strcpy(nou->inf.nume, persoana.nume);
+	if (*cap!=NULL)
+	{
+		NodLS* temp = *cap;
+		while (temp->next != NULL) {
+			temp = temp->next;
+		}
+		temp->next = nou;
+	}
+	else
+	{
+		*cap = nou;
+	}
+}
+void adaugaInHash(HashT tabela, Persoana persoana)
+{
+	int poz = functieHash(persoana.id, tabela.nrElem);
+	adaugaNod(&tabela.vect[poz], persoana);
+}
+void afisareLista(NodLS* cap)
+{
+	while (cap != NULL)
+	{
+		afiseazaPersoana(cap->inf);
+		cap = cap->next;
+	}
+}
+void afisareHashT(HashT tabela)
+{
+	for (int i = 0; i < tabela.nrElem; i++)
+	{
+		if (tabela.vect[i] != NULL)
+		{
+		printf("Lista de pe pozitia %d:\n", i);
+		afisareLista(tabela.vect[i]);
+		}
+	}
+}
+void stergereDinLista(NodLS** cap, char* denumire)
+{
+	//ne trebuie temp, prev si next;
+	NodLS* temp = *cap;
+	NodLS* prev = NULL;
+	NodLS* nextTemp = temp->next;
+	while (temp)
+	{
+		if (strcmp(temp->inf.nume, denumire) == 0)
+		{
+			if (temp = *cap)
+			{
+				(*cap) = (*cap)->next;
+			}
+			else {
+				prev->next = nextTemp;
+			}
+			free(temp->inf.nume);
+			free(temp);
+			temp = nextTemp;
+		}
+		else
+		{
+			prev = temp;
+			temp = nextTemp;
+			nextTemp = nextTemp->next;
+		}
+	}
+}
+void stergereElemHashT(HashT tabela, char* denumire)
+{
+	for (int i = 0; i < tabela.nrElem; i++)
+	{
+		stergereDinLista(tabela.vect[i], denumire);
+	}
+}
+void main()
+{
+	Persoana persoana;
+	HashT tabela;
+	tabela.nrElem = HTABLE_SIZE;
+	tabela.vect = (NodLS**)malloc(sizeof(NodLS*) * tabela.nrElem);
+	for (int i = 0; i < tabela.nrElem; i++)
+	{
+		tabela.vect[i] = NULL;
+	}
+	FILE* fisier = fopen("Text.txt", "r");
+	int nrElemFisier;
+	fscanf(fisier, "%d", &nrElemFisier);
+	for (int i = 0; i < nrElemFisier; i++)
+	{
+		persoana = ExtragePersoana(fisier);
+		//afiseazaPersoana(persoana);
+		adaugaInHash(tabela, persoana);
+	}
+	afisareHashT(tabela);
+	printf("-------------dupa stregere -------------\n");
+	stergereElemHashT(tabela, "Alex");
+	afisareHashT(tabela);
+	fclose(fisier);
+}
