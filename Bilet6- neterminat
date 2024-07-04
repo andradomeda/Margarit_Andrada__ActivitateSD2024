@@ -1,0 +1,169 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<stdio.h>
+#include<malloc.h>
+#include<string.h>
+typedef struct Comanda Comanda;
+typedef struct NodABC NodABC;
+struct Comanda
+{
+	int timp_livrare;
+	int cod_client;
+	int id_comanda;
+	char* numeClient;
+	unsigned int nrProduse;
+	float* pretProd;
+	char litera;
+};
+struct NodABC
+{
+	Comanda inf;
+	struct NodABC* st;
+	struct NodABC* dr;
+};
+Comanda extrageComanda(FILE* fisier)
+{
+	Comanda comanda;
+	fscanf(fisier, "%d", &comanda.timp_livrare);
+	fscanf(fisier, "%d", &comanda.cod_client);
+	fscanf(fisier, "%d", &comanda.id_comanda);
+	char buffer[100];
+	fscanf(fisier, "%s", buffer);
+	comanda.numeClient = (char*)malloc(strlen(buffer) + 1);
+	strcpy(comanda.numeClient, buffer);
+	fscanf(fisier, "%u", &comanda.nrProduse);
+	comanda.pretProd = (float*)malloc(sizeof(float) * comanda.nrProduse);
+	for (int i = 0; i < comanda.nrProduse; i++)
+	{
+		fscanf(fisier, "%f", &comanda.pretProd[i]);
+	}
+	fscanf(fisier, " %c", &comanda.litera);
+	return comanda;
+}
+void afisareComanda(Comanda comanda)
+{
+	printf("%d %d %d %s ", comanda.timp_livrare, comanda.cod_client, comanda.id_comanda, comanda.numeClient, comanda.nrProduse);
+	for (int i = 0; i < comanda.nrProduse; i++)
+	{
+		printf("%.2f ", comanda.pretProd[i]);
+	}
+	printf(" % c\n", comanda.litera);
+	
+}
+
+NodABC* adaugaInArbore(NodABC* rad, Comanda comanda)
+{
+	if (rad)
+	{
+		if (rad->inf.id_comanda > comanda.id_comanda)
+		{
+			rad->st = adaugaInArbore(rad->st, comanda);
+		}
+		else if (rad->inf.id_comanda < comanda.id_comanda)
+		{
+			rad->dr= adaugaInArbore(rad->dr, comanda);
+		}
+		return rad;
+	}
+	else
+	{
+		NodABC* nodNou = (NodABC*)malloc(sizeof(NodABC));
+		nodNou->inf = comanda;
+
+		nodNou->dr = nodNou->st = NULL;
+		return nodNou;
+	}	
+}
+void afisareArbore(NodABC* rad)
+{
+	if (rad)
+	{
+		afisareArbore(rad->st);
+		afisareComanda(rad->inf);
+		afisareArbore(rad->dr);
+	}
+}
+struct Vector {
+	Comanda* vect;
+	int nrElemVect;
+};
+typedef struct Vector Vector;
+
+void dinABCinVect(NodABC* rad, Vector* v, int timp)
+{
+	if (rad)
+	{
+		if (rad->inf.timp_livrare > timp)
+		{
+			v->vect = (Comanda*)realloc(v->vect, sizeof(Comanda) * (v->nrElemVect + 1));
+
+			v->vect[v->nrElemVect].timp_livrare = rad->inf.timp_livrare;
+
+			v->vect[v->nrElemVect].cod_client = rad->inf.cod_client;
+			
+			v->vect[v->nrElemVect].id_comanda = rad->inf.id_comanda;
+			
+			v->vect[v->nrElemVect].numeClient = (char*)malloc(strlen(rad->inf.numeClient) + 1);
+			
+			strcpy(v->vect[v->nrElemVect].numeClient, rad->inf.numeClient);
+			
+			v->vect[v->nrElemVect].nrProduse= rad->inf.nrProduse;
+			
+			v->vect[v->nrElemVect].pretProd = (float*)malloc(sizeof(float) * v->vect->nrProduse);
+			
+			for (int i = 0; i < v->vect->nrProduse; i++)
+			{
+				v->vect[v->nrElemVect].pretProd[i] = rad->inf.pretProd[i];
+			}
+			v->vect[v->nrElemVect].litera = rad->inf.litera;
+			
+			
+			v->nrElemVect++;
+		}
+		dinABCinVect(rad->st, v, timp);
+		dinABCinVect(rad->dr, v, timp);
+	}
+}
+void 
+void main()
+{
+	Comanda comanda;
+	NodABC* rad = NULL;
+	FILE* fisier = fopen("Text.txt", "r");
+	int nrComenzi;
+	fscanf(fisier, "%d", &nrComenzi);
+	for (int i = 0; i < nrComenzi; i++)
+	{
+		comanda = extrageComanda(fisier);
+		//afisareComanda(comanda);
+		rad=adaugaInArbore(rad, comanda);
+	}
+	afisareArbore(rad);
+
+	printf("cerinta 2\n");
+
+
+	int timp = 20;
+	Vector v;
+	v.vect = NULL;
+	v.nrElemVect = 0;
+	dinABCinVect(rad, &v, timp);
+	for (int i = 0; i < v.nrElemVect; i++)
+	{
+		afisareComanda(v.vect[i]);
+	}
+
+	fclose(fisier);
+
+}
+----------------------------------
+10
+10 1234 1 IonPopescu 5 12.5 15.3 22.1 8.9 10.0 A
+15 5678 2 MariaIonescu 3 20.0 30.5 40.8 B
+20 9101 3 GeorgeVasile 4 9.9 15.5 12.0 7.8 C
+12 3456 4 AndreiTudor 2 35.7 25.4 D
+25 7890 5 FlorinRadu 6 12.5 18.9 21.0 15.3 17.8 20.1 E
+30 1112 6 CristinaMihai 1 50.0 F
+18 3456 7 AndreiTudor 5 14.3 19.5 13.2 16.8 21.0 G
+22 1516 8 ElenaMarinescu 3 11.5 14.2 20.3 H
+28 1718 9 MihaiPopa 4 17.6 19.9 15.8 14.4 I
+16 1920 10 VasileDumitru 2 10.2 22.3 J
